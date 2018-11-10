@@ -1,18 +1,8 @@
 (page "index.html"
-  (:require [by-chance.music   :as    music]
-            [by-chance.options :as    opts]
-            [clojure.string    :as    str]))
-
-(def categories
-  [["body parts"    [:dance :body-parts]]
-   ["images"        [:dance :images]]
-   ["musical scales"   [:music :scales]]
-   ["musical qualities" [:music :qualities]]])
-
-;; temporary while developing
-(defn random-selections
-  [n path]
-  (cell= (->> (get-in opts/options path) shuffle (take n))))
+  (:require [by-chance.music   :as music]
+            [by-chance.options :as opts]
+            [by-chance.output  :as out]
+            [clojure.string    :as str]))
 
 (defc current-view :options)
 
@@ -33,52 +23,6 @@
       attr)
     kids))
 
-(defelem options-view
-  [_ _]
-  (div :toggle (cell= (= :options current-view))
-       (for [[lbl path] categories
-             :when (not= "musical scales" lbl)]
-         (div :class "mb-16"
-              (input :type "text"
-                     :class "mb-2 px-2 py-2 rounded-full shadow
-                             hover:shadow-outline focus:outline-none
-                             focus:shadow-outline"
-                     :keyup #(when (= "Enter" (.-key %))
-                               (let [target (.-target %)]
-                                 (when-not (str/blank? (.-value target))
-                                   (swap! opts/options update-in path
-                                          conj (.-value target))
-                                   (set! (.-value target) "")))))
-              (p :class "font-bold" (str lbl ": "))
-              (p
-               (for-tpl [[i option] (cell= (->> (get-in opts/options path)
-                                                (map-indexed vector)))]
-                 (span :class "mr-3 hover:text-red-dark hover:font-bold
-                               cursor-pointer"
-                       :click (fn []
-                                (swap! opts/options update-in path
-                                       #(vec (concat (take @i %)
-                                                     (drop (inc @i) %)))))
-
-                       option)))))
-       (div
-         (a :class "italic no-underline text-grey hover:text-red-dark"
-            :href  "#"
-            :click opts/reset-options!
-            "clear all"))))
-
-(defelem selections-view
-  [_ _]
-  (div :class "flex flex-wrap mx-auto"
-       :toggle (cell= (= :selections current-view))
-       (->> (for [[label path] categories]
-              (div :class "w-auto p-2"
-                   (div :class "text-center p-2"
-                        (h2 label)
-                        (ol :class "list-reset"
-                            (for-tpl [selection (random-selections 10 path)]
-                              (li selection)))))))))
-
 (html
   (head
     (title "by chance :: renay aumiller + dave yarwood")
@@ -93,7 +37,7 @@
       (span :class "font-bold italic" "dave yarwood"))
     (div :class "mb-8"
       (pill :view :options "options")
-      (pill :view :selections "selections"))
-    (options-view)
-    (selections-view)))
+      (pill :view :output "output"))
+    (opts/options-view :toggle (cell= (= :options current-view)))
+    (out/output-view :toggle (cell= (= :output current-view)))))
 

@@ -1,0 +1,20 @@
+(ns by-chance.output
+  (:require [by-chance.options :as opts]))
+
+;; temporary while developing
+(defn random-selections
+  [n path]
+  (cell= (->> (get-in opts/options path) shuffle (take n))))
+
+(defelem output-view
+  [attr _]
+  (div (merge attr
+              {:class "flex flex-wrap mx-auto"})
+       (->> (for [[label path] opts/categories]
+              (div :class "w-auto p-2"
+                   (div :class "text-center p-2"
+                        (h2 label)
+                        (ol :class "list-reset"
+                            (for-tpl [selection (random-selections 10 path)]
+                              (li selection)))))))))
+

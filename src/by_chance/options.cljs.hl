@@ -1,6 +1,7 @@
 (ns by-chance.options
-  (:require [by-chance.music :as music]
-            [cljs.reader      :refer (read-string)]))
+  (:require [by-chance.music  :as    music]
+            [cljs.reader      :refer (read-string)]
+            [clojure.string   :as    str]))
 
 (def initial-options
   {:dance {:body-parts [], :images []}
@@ -28,4 +29,44 @@
 (defn reset-options!
   []
   (reset! options initial-options))
+
+(def categories
+  [["body parts"    [:dance :body-parts]]
+   ["images"        [:dance :images]]
+   ["musical scales"   [:music :scales]]
+   ["musical qualities" [:music :qualities]]])
+
+(defelem options-view
+  [attr _]
+  (div attr
+       (for [[lbl path] categories
+             :when (not= "musical scales" lbl)]
+         (div :class "mb-16"
+              (input :type "text"
+                     :class "mb-2 px-2 py-2 rounded-full shadow
+                             hover:shadow-outline focus:outline-none
+                             focus:shadow-outline"
+                     :keyup #(when (= "Enter" (.-key %))
+                               (let [target (.-target %)]
+                                 (when-not (str/blank? (.-value target))
+                                   (swap! options update-in path
+                                          conj (.-value target))
+                                   (set! (.-value target) "")))))
+              (p :class "font-bold" (str lbl ": "))
+              (p
+               (for-tpl [[i option] (cell= (->> (get-in options path)
+                                                (map-indexed vector)))]
+                 (span :class "mr-3 hover:text-red-dark hover:font-bold
+                               cursor-pointer"
+                       :click (fn []
+                                (swap! options update-in path
+                                       #(vec (concat (take @i %)
+                                                     (drop (inc @i) %)))))
+
+                       option)))))
+       (div
+         (a :class "italic no-underline text-grey hover:text-red-dark"
+            :href  "#"
+            :click reset-options!
+            "clear all"))))
 
