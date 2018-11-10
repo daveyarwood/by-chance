@@ -10,14 +10,39 @@
   [n path]
   (cell= (->> (get-in options path) shuffle (take n))))
 
+(defc current-view :options)
+
+(defn- classes
+  [class-names]
+  (zipmap class-names (repeat true)))
+
+(defelem pill
+  [{:keys [view] :as attr} kids]
+  (button
+    (merge
+      {:class (cell= (merge (classes [:inline-block :text-white :font-bold
+                                      :text-xs :py-2 :px-4 :m-1 :rounded-full
+                                      :focus:outline-none])
+                            {:bg-blue            (= view current-view)
+                             :bg-blue-light      (not= view current-view)}))
+       :click #(reset! current-view view)}
+      attr)
+    kids))
+
 (html
   (head
     (title "by chance")
     (link :href "tailwind.min.css" :rel "stylesheet" :type "text/css"))
     ;; (link :href "app.css" :rel "stylesheet" :type "text/css"))
   (body :class "bg-grey-lighter text-blue-darkest  container mx-auto"
-    (h1 "by chance")
+    (h1 :class "m-2"
+        "by chance")
+    (pill :view :options
+          "options")
+    (pill :view :selections
+          "selections")
     (div :class "flex flex-wrap mx-auto"
+         :toggle (cell= (= :selections current-view))
          (->> (for [[label path]
                     [["body parts"    [:dance :body-parts]]
                      ["images"        [:dance :images]]
