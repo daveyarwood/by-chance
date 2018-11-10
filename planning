@@ -1,4 +1,4 @@
-5 minutes of dancing
+5 minutes of music/dance
 
 music: 5 movements, one of which is silent
 dance: 5 movements, one of which is stillness
@@ -15,16 +15,5 @@ audio:
 - quiet, crackly static throughout
 - a soft, low, whhhOMMM to signal the start of each movement
 
----
-
-idea: do it in the browser, so display can be more customizable
-
-can store the ideas in local storage, and include a button to clear them out
-when needed
-
-no need for a backend, can be all frontend
-
-time is of the essence, so need to do this as quickly as possible. probably
-quickest to do it in hoplon.
-
 can use the web audio api to play audio files
+
