@@ -1,34 +1,7 @@
 (page "index.html"
-  (:require [by-chance.music :as music]
-            [cljs.reader     :refer (read-string)]
-            [clojure.string  :as str]))
-
-(def initial-options
-  {:dance {:body-parts [], :images []}
-   :music {:scales music/scales, :qualities []}})
-
-(defc options nil)
-
-(def storage-item-name "by-chance-options")
-
-(with-timeout 0
-  (reset! options
-          (if-let [stored-options (-> js/window
-                                      .-localStorage
-                                      (.getItem storage-item-name))]
-            (read-string stored-options)
-            initial-options)))
-
-(do-watch options
-          (fn [old-value new-value]
-            (when (and old-value new-value)
-              (-> js/window
-                  .-localStorage
-                  (.setItem storage-item-name (prn-str new-value))))))
-
-(defn reset-options!
-  []
-  (reset! options initial-options))
+  (:require [by-chance.music   :as    music]
+            [by-chance.options :as    opts]
+            [clojure.string    :as    str]))
 
 (def categories
   [["body parts"    [:dance :body-parts]]
@@ -39,7 +12,7 @@
 ;; temporary while developing
 (defn random-selections
   [n path]
-  (cell= (->> (get-in options path) shuffle (take n))))
+  (cell= (->> (get-in opts/options path) shuffle (take n))))
 
 (defc current-view :options)
 
@@ -73,16 +46,17 @@
                      :keyup #(when (= "Enter" (.-key %))
                                (let [target (.-target %)]
                                  (when-not (str/blank? (.-value target))
-                                   (swap! options update-in path conj (.-value target))
+                                   (swap! opts/options update-in path
+                                          conj (.-value target))
                                    (set! (.-value target) "")))))
               (p :class "font-bold" (str lbl ": "))
               (p
-               (for-tpl [[i option] (cell= (->> (get-in options path)
+               (for-tpl [[i option] (cell= (->> (get-in opts/options path)
                                                 (map-indexed vector)))]
                  (span :class "mr-3 hover:text-red-dark hover:font-bold
                                cursor-pointer"
                        :click (fn []
-                                (swap! options update-in path
+                                (swap! opts/options update-in path
                                        #(vec (concat (take @i %)
                                                      (drop (inc @i) %)))))
 
@@ -90,7 +64,7 @@
        (div
          (a :class "italic no-underline text-grey hover:text-red-dark"
             :href  "#"
-            :click reset-options!
+            :click opts/reset-options!
             "clear all"))))
 
 (defelem selections-view

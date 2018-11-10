@@ -1,0 +1,31 @@
+(ns by-chance.options
+  (:require [by-chance.music :as music]
+            [cljs.reader      :refer (read-string)]))
+
+(def initial-options
+  {:dance {:body-parts [], :images []}
+   :music {:scales music/scales, :qualities []}})
+
+(defc options nil)
+
+(def storage-item-name "by-chance-options")
+
+(with-timeout 0
+  (reset! options
+          (if-let [stored-options (-> js/window
+                                      .-localStorage
+                                      (.getItem storage-item-name))]
+            (read-string stored-options)
+            initial-options)))
+
+(do-watch options
+          (fn [old-value new-value]
+            (when (and old-value new-value)
+              (-> js/window
+                  .-localStorage
+                  (.setItem storage-item-name (prn-str new-value))))))
+
+(defn reset-options!
+  []
+  (reset! options initial-options))
+
