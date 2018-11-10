@@ -1,9 +1,22 @@
 (page "index.html"
-  (:require [by-chance.music :as music]))
+  (:require [by-chance.music :as music]
+            [clojure.string  :as str]))
 
-(defc options
+(def initial-options
   {:dance {:body-parts [], :images []}
    :music {:scales music/scales, :qualities []}})
+
+(defc options initial-options)
+
+(defn reset-options!
+  []
+  (reset! options initial-options))
+
+(def categories
+  [["body parts"    [:dance :body-parts]]
+   ["images"        [:dance :images]]
+   ["musical scales"   [:music :scales]]
+   ["musical qualities" [:music :qualities]]])
 
 ;; temporary while developing
 (defn random-selections
@@ -29,29 +42,67 @@
       attr)
     kids))
 
+(defelem options-view
+  [_ _]
+  (div :toggle (cell= (= :options current-view))
+       (for [[lbl path] categories
+             :when (not= "musical scales" lbl)]
+         (div :class "mb-16"
+              (input :type "text"
+                     :class "mb-2 px-2 py-2 rounded-full shadow
+                             hover:shadow-outline focus:outline-none
+                             focus:shadow-outline"
+                     :keyup #(when (= "Enter" (.-key %))
+                               (let [target (.-target %)]
+                                 (when-not (str/blank? (.-value target))
+                                   (swap! options update-in path conj (.-value target))
+                                   (set! (.-value target) "")))))
+              (p :class "font-bold" (str lbl ": "))
+              (p
+               (for-tpl [[i option] (cell= (->> (get-in options path)
+                                                (map-indexed vector)))]
+                 (span :class "mr-3 hover:text-red-dark hover:font-bold
+                               cursor-pointer"
+                       :click (fn []
+                                (swap! options update-in path
+                                       #(vec (concat (take @i %)
+                                                     (drop (inc @i) %)))))
+
+                       option)))))
+       (div
+         (a :class "italic no-underline text-grey hover:text-red-dark"
+            :href  "#"
+            :click reset-options!
+            "clear all"))))
+
+(defelem selections-view
+  [_ _]
+  (div :class "flex flex-wrap mx-auto"
+       :toggle (cell= (= :selections current-view))
+       (->> (for [[label path] categories]
+              (div :class "w-auto p-2"
+                   (div :class "text-center p-2"
+                        (h2 label)
+                        (ol :class "list-reset"
+                            (for-tpl [selection (random-selections 10 path)]
+                              (li selection)))))))))
+
 (html
   (head
-    (title "by chance")
+    (title "by chance :: renay aumiller + dave yarwood")
     (link :href "tailwind.min.css" :rel "stylesheet" :type "text/css"))
     ;; (link :href "app.css" :rel "stylesheet" :type "text/css"))
-  (body :class "bg-grey-lighter text-blue-darkest  container mx-auto"
-    (h1 :class "m-2"
-        "by chance")
-    (pill :view :options
-          "options")
-    (pill :view :selections
-          "selections")
-    (div :class "flex flex-wrap mx-auto"
-         :toggle (cell= (= :selections current-view))
-         (->> (for [[label path]
-                    [["body parts"    [:dance :body-parts]]
-                     ["images"        [:dance :images]]
-                     ["music scale"   [:music :scales]]
-                     ["music quality" [:music :quality]]]]
-                (div :class "w-auto p-2"
-                     (div :class "text-center p-2"
-                       (h2 label)
-                       (ol :class "list-reset"
-                         (for-tpl [selection (random-selections 10 path)]
-                           (li selection))))))))))
+  (body :class "bg-grey-lighter text-blue-darkest container mx-auto"
+    (div :class "m-2"
+      (h1 "by chance")
+      (span :class "italic" "an algorithmic improvisation by")
+      (br)
+      (span :class "font-bold italic" "renay aumiller")
+      (span :class "italic" " + ")
+      (span :class "font-bold italic" "dave yarwood"))
+    (div :class "mb-8"
+      (pill :view :options "options")
+      (pill :view :selections "selections"))
+    (options-view)
+    (selections-view)))
 
