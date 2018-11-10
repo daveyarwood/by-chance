@@ -1,7 +1,32 @@
-(page "index.html")
+(page "index.html"
+  (:require [by-chance.music :as music]))
+
+(defc options
+  {:dance {:body-parts [], :images []}
+   :music {:scales music/scales, :qualities []}})
+
+;; temporary while developing
+(defn random-selections
+  [n path]
+  (cell= (->> (get-in options path) shuffle (take n))))
 
 (html
   (head
-    (link :href "app.css" :rel "stylesheet" :type "text/css"))
-  (body
-    (h1 "Hello, Hoplon!")))
+    (title "by chance")
+    (link :href "tailwind.min.css" :rel "stylesheet" :type "text/css"))
+    ;; (link :href "app.css" :rel "stylesheet" :type "text/css"))
+  (body :class "bg-grey-lighter text-blue-darkest  container mx-auto"
+    (h1 "by chance")
+    (div :class "flex flex-wrap mx-auto"
+         (->> (for [[label path]
+                    [["body parts"    [:dance :body-parts]]
+                     ["images"        [:dance :images]]
+                     ["music scale"   [:music :scales]]
+                     ["music quality" [:music :quality]]]]
+                (div :class "w-auto p-2"
+                     (div :class "text-center p-2"
+                       (h2 label)
+                       (ol :class "list-reset"
+                         (for-tpl [selection (random-selections 10 path)]
+                           (li selection))))))))))
+

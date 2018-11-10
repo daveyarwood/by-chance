@@ -1,0 +1,28 @@
+(ns music)
+
+(def letters     ["A" "B" "C" "D" "E" "F" "G"])
+(def accidentals ["" "#" "b"])
+(def notes       (for [letter letters, accidental accidentals]
+                   (str letter accidental)))
+
+(def main-scale-types
+  ["major" "minor" "major pentatonic" "minor pentatonic"
+   "dorian" "phrygian" "lydian" "mixolydian" "locrian"])
+
+(def main-scales
+  (for [note notes, scale-type main-scale-types]
+    (str note \space scale-type)))
+
+(def other-scales
+  "I want these scale types to have the same chance of coming up as the \"main\"
+   scale types, but the \"main\" scale types have root notes, e.g. Ab
+   mixolydian, whereas there is no note associated with these scale types.
+
+   To remedy this, we include a proportional amount of these scale types."
+  (->> ["octatonic" "chromatic"]
+       (map #(repeat (count main-scales) %))
+       (apply concat)))
+
+(def music-scales
+  (concat main-scales other-scales))
+
