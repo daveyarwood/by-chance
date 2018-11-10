@@ -83,7 +83,6 @@
   (head
     (title "by chance :: renay aumiller + dave yarwood")
     (link :href "tailwind.min.css" :rel "stylesheet" :type "text/css"))
-    ;; (link :href "app.css" :rel "stylesheet" :type "text/css"))
   (body :class "bg-grey-lighter text-blue-darkest container mx-auto"
     (div :class "m-2"
       (h1 "by chance")
