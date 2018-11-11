@@ -1,0 +1,21 @@
+(ns by-chance.performance
+  (:require [by-chance.output :as out]))
+
+(defc performing? false)
+
+(defn perform!
+  []
+  (reset! performing? true))
+
+;; tmp
+(do-watch
+  performing?
+  (fn [_ ja?]
+    (when ja?
+      (with-timeout 1000
+        (reset! performing? false)))))
+
+(defelem performance
+  [attr _]
+  (div attr
+       (p "TODO")))

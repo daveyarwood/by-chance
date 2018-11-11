@@ -47,6 +47,8 @@
 
 (defc piece nil)
 
+(defc= success? (= ::success (first piece)))
+
 (defc refresh-count 0)
 
 (with-timeout 50
@@ -69,7 +71,7 @@
 (defelem output-view
   [attr _]
   (div attr
-       (div :toggle (cell= (= ::success (first piece)))
+       (div :toggle success?
          (for-tpl [[i {:keys [length body-part image scale quality]}]
                    (cell= (map-indexed vector (second piece)))]
            (div :class "inline-block p-2 w-2/5"

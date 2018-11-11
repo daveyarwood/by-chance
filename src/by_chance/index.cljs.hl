@@ -1,8 +1,9 @@
 (page "index.html"
-  (:require [by-chance.music   :as music]
-            [by-chance.options :as opts]
-            [by-chance.output  :as out]
-            [clojure.string    :as str]))
+  (:require [by-chance.music       :as music]
+            [by-chance.options     :as opts]
+            [by-chance.output      :as out]
+            [by-chance.performance :as perf]
+            [clojure.string        :as str]))
 
 (defc current-view :options)
 
@@ -17,35 +18,50 @@
       {:class (cell= (merge (classes [:inline-block :text-white :font-bold
                                       :text-xs :py-2 :px-4 :m-1 :rounded-full
                                       :focus:outline-none])
-                            {:bg-blue            (= view current-view)
-                             :bg-blue-light      (not= view current-view)}))
+                            {:bg-blue       (= view current-view)
+                             :bg-blue-light (not= view current-view)}))
        :click #(reset! current-view view)}
       attr)
     kids))
 
 (defelem refresh
-  [_ _]
-  (button :class "inline-block hover:text-blue"
-          :click #(swap! out/refresh-count inc)
+  [attr _]
+  (button
+    :class "inline-block hover:text-blue mr-2"
+    :click #(swap! out/refresh-count inc)
     "⟳"))
+
+(defelem play
+  [_ _]
+  (button
+    :class (cell= (merge (classes [:inline-block :mr-2])
+                         {:text-grey          (not out/success?)
+                          :cursor-not-allowed (not out/success?)
+                          :cursor-pointer     out/success?
+                          :hover:text-blue    out/success?}))
+    :click #(perf/perform!)
+    "▶"))
 
 (html
   (head
     (title "by chance :: renay aumiller + dave yarwood")
     (link :href "tailwind.min.css" :rel "stylesheet" :type "text/css"))
   (body :class "bg-grey-lighter text-blue-darkest container mx-auto"
-    (div :class "m-2"
-      (h1 :class "inline-block mr-4" "by chance")
-      (div :class "inline-block absolute t-16"
-        (span :class "italic" "an algorithmic improvisation by")
-        (br)
-        (span :class "font-bold italic" "renay aumiller")
-        (span :class "italic" " + ")
-        (span :class "font-bold italic" "dave yarwood")))
-    (div :class "mb-8"
-      (pill :view :options "options")
-      (pill :view :output "output")
-      (refresh))
-    (opts/options-view :toggle (cell= (= :options current-view)))
-    (out/output-view :toggle (cell= (= :output current-view)))))
+    (div :toggle (cell= (not perf/performing?))
+      (div :class "m-2"
+        (h1 :class "inline-block mr-4" "by chance")
+        (div :class "inline-block absolute t-16"
+          (span :class "italic" "an algorithmic improvisation by")
+          (br)
+          (span :class "font-bold italic" "renay aumiller")
+          (span :class "italic" " + ")
+          (span :class "font-bold italic" "dave yarwood")))
+      (div :class "mb-8"
+        (pill :view :options "options")
+        (pill :view :output "output")
+        (refresh)
+        (play))
+      (opts/options-view :toggle (cell= (= :options current-view)))
+      (out/output-view :toggle (cell= (= :output current-view))))
+    (perf/performance :toggle perf/performing?)))
 
