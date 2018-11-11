@@ -1,20 +1,96 @@
 (ns by-chance.output
   (:require [by-chance.options :as opts]))
 
-;; temporary while developing
-(defn random-selections
-  [n path]
-  (cell= (->> (get-in opts/options path) shuffle (take n))))
+;; all lengths here are in seconds
+(def TOTAL-PIECE-LENGTH (* 60 5))
+(def MIN-MOVEMENT-LENGTH 10)
+(def MAX-MOVEMENT-LENGTH (* 60 2))
+
+(defn random-movement-lengths
+  []
+  (loop [lengths []]
+    (let [piece-length (apply + lengths)]
+      (if (< piece-length TOTAL-PIECE-LENGTH)
+        (let [length (-> MIN-MOVEMENT-LENGTH
+                         (+ (rand-int (- MAX-MOVEMENT-LENGTH
+                                         MIN-MOVEMENT-LENGTH)))
+                         (min (- TOTAL-PIECE-LENGTH piece-length)))]
+          (recur (conj lengths length)))
+        lengths))))
+
+(defn random-piece
+  [{:keys [music dance]}]
+  (let [{:keys [body-parts images]} dance
+        {:keys [scales qualities]}  music
+        lengths  (random-movement-lengths)
+        silent-i (rand-int (count lengths))
+        still-i  (rand-int (count lengths))]
+    (if (some #(< (count %) (count lengths))
+              [body-parts images qualities])
+      [::error
+       (str "Not enough options. Need " (count lengths) ".")
+       {:body-parts (count body-parts)
+        :images     (count images)
+        :qualities  (count qualities)}]
+      [::success
+       (map (fn [i body-part image scale quality]
+              (merge {:length (nth lengths i)}
+                     (when-not (= silent-i i)
+                       {:scale scale, :quality quality})
+                     (when-not (= still-i i)
+                       {:body-part body-part, :image image})))
+            (range (count lengths))
+            (shuffle body-parts)
+            (shuffle images)
+            (shuffle scales)
+            (shuffle qualities))])))
+
+(defc piece nil)
+
+(defc refresh-count 0)
+
+(with-timeout 50
+  (swap! refresh-count inc))
+
+(do-watch
+  (cell= [opts/options refresh-count])
+  (fn [_ [options _]]
+    (reset! piece (random-piece options))))
+
+(defn min-sec-format
+  [seconds]
+  (str (quot seconds 60)
+       ":"
+       (let [s (rem seconds 60)]
+         (if (< s 10)
+           (str 0 s)
+           s))))
 
 (defelem output-view
   [attr _]
-  (div (merge attr
-              {:class "flex flex-wrap mx-auto"})
-       (->> (for [[label path] opts/categories]
-              (div :class "w-auto p-2"
-                   (div :class "text-center p-2"
-                        (h2 label)
-                        (ol :class "list-reset"
-                            (for-tpl [selection (random-selections 10 path)]
-                              (li selection)))))))))
-
+  (div attr
+       (div :toggle (cell= (= ::success (first piece)))
+         (for-tpl [[i {:keys [length body-part image scale quality]}]
+                   (cell= (map-indexed vector (second piece)))]
+           (div :class "inline-block p-2 w-2/5"
+             (h2 :class "inline-block mr-2"
+                 "MOVEMENT " (cell= (inc i)))
+             (p :class "inline-block italic"
+                (cell= (str "(" (min-sec-format length) ")")))
+             (p
+               (span :class "font-bold"
+                     "dance: ")
+               (span :class "italic"
+                     (cell= (if (and body-part image)
+                              (str body-part ", " image)
+                              "STILLNESS"))))
+             (p
+               (span :class "font-bold"
+                     "music: ")
+               (span :class "italic"
+                     (cell= (if (and scale quality)
+                              (str scale ", " quality)
+                              "SILENCE")))))))
+       (div :toggle (cell= (= ::error (first piece)))
+         (for-tpl [x (cell= (rest piece))]
+           (p (cell= (pr-str x)))))))

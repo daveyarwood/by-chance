@@ -19,12 +19,13 @@
             (read-string stored-options)
             initial-options)))
 
-(do-watch options
-          (fn [old-value new-value]
-            (when (and old-value new-value)
-              (-> js/window
-                  .-localStorage
-                  (.setItem storage-item-name (prn-str new-value))))))
+(do-watch
+  options
+  (fn [old-value new-value]
+    (when (and old-value new-value)
+      (-> js/window
+          .-localStorage
+          (.setItem storage-item-name (prn-str new-value))))))
 
 (defn reset-options!
   []
@@ -41,7 +42,7 @@
   (div attr
        (for [[lbl path] categories
              :when (not= "musical scales" lbl)]
-         (div :class "mb-16"
+         (div :class "mb-8"
               (input :type "text"
                      :class "mb-2 px-2 py-2 rounded-full shadow
                              hover:shadow-outline focus:outline-none
