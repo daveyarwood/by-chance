@@ -4,8 +4,8 @@
             [clojure.string   :as    str]))
 
 (def initial-options
-  {:dance {:body-parts [], :images []}
-   :music {:scales music/scales, :qualities []}})
+  {:dance {:body-parts [], :dance-qualities []}
+   :music {:scales music/scales, :music-qualities []}})
 
 (defc options nil)
 
@@ -32,10 +32,10 @@
   (reset! options initial-options))
 
 (def categories
-  [["body parts"    [:dance :body-parts]]
-   ["images"        [:dance :images]]
-   ["musical scales"   [:music :scales]]
-   ["musical qualities" [:music :qualities]]])
+  [["body parts"        [:dance :body-parts]]
+   ["dance qualities"   [:dance :dance-qualities]]
+   ["musical scales"    [:music :scales]]
+   ["musical qualities" [:music :music-qualities]]])
 
 (defelem options-view
   [attr _]

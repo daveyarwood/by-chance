@@ -23,30 +23,32 @@
 
 (defn random-piece
   [{:keys [music dance]}]
-  (let [{:keys [body-parts images]} dance
-        {:keys [scales qualities]}  music
+  (let [{:keys [body-parts dance-qualities]} dance
+        {:keys [scales music-qualities]}  music
         lengths  (random-movement-lengths)
         silent-i (rand-int (count lengths))
         still-i  (rand-int (count lengths))]
     (if (some #(< (count %) (count lengths))
-              [body-parts images qualities])
+              [body-parts dance-qualities music-qualities])
       [::error
        (str "Not enough options. Need " (count lengths) ".")
-       {:body-parts (count body-parts)
-        :images     (count images)
-        :qualities  (count qualities)}]
+       {:body-parts      (count body-parts)
+        :dance-qualities (count dance-qualities)
+        :music-qualities (count music-qualities)}]
       [::success
-       (map (fn [i body-part image scale quality]
+       (map (fn [i body-part dance-quality scale music-quality]
               (merge {:length (nth lengths i)}
                      (when-not (= silent-i i)
-                       {:scale scale, :quality quality})
+                       {:scale         scale
+                        :music-quality music-quality})
                      (when-not (= still-i i)
-                       {:body-part body-part, :image image})))
+                       {:body-part     body-part
+                        :dance-quality dance-quality})))
             (range (count lengths))
             (shuffle body-parts)
-            (shuffle images)
+            (shuffle dance-qualities)
             (shuffle scales)
-            (shuffle qualities))])))
+            (shuffle music-qualities))])))
 
 (defc piece nil)
 
@@ -73,7 +75,8 @@
 
 (defelem movement-view
   [{:keys [i movement] :as attr} _]
-  (cell-let [{:keys [length body-part image scale quality]} movement]
+  (cell-let [{:keys [length body-part dance-quality scale music-quality]}
+             movement]
     (div (dissoc attr :i :movement)
          (h2 :class "inline-block mr-2"
              "MOVEMENT " (cell= (inc i)))
@@ -83,15 +86,15 @@
           (span :class "font-bold"
                 "dance: ")
           (span :class "italic"
-                (cell= (if (and body-part image)
-                         (str body-part ", " image)
+                (cell= (if (and body-part dance-quality)
+                         (str body-part ", " dance-quality)
                          "(stillness)"))))
          (p
           (span :class "font-bold"
                 "music: ")
           (span :class "italic"
-                (cell= (if (and scale quality)
-                         (str scale ", " quality)
+                (cell= (if (and scale music-quality)
+                         (str scale ", " music-quality)
                          "(silence)")))))))
 
 (defelem output-view
