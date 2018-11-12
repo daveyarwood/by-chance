@@ -32,7 +32,7 @@
    mixolydian, whereas there is no note associated with these scale types.
 
    To remedy this, we include a proportional amount of these scale types."
-  (->> ["octatonic" "chromatic"]
+  (->> ["octatonic" "chromatic" "sound collage"]
        (map #(repeat (count notes) %))
        (apply concat)))
 
