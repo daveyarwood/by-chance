@@ -2,9 +2,12 @@
   (:require [by-chance.options :as opts]))
 
 ;; all lengths here are in seconds
-(def TOTAL-PIECE-LENGTH (* 60 5))
-(def MIN-MOVEMENT-LENGTH 10)
-(def MAX-MOVEMENT-LENGTH (* 60 2))
+(def TOTAL-PIECE-LENGTH 30)
+(def MIN-MOVEMENT-LENGTH 5)
+(def MAX-MOVEMENT-LENGTH 10)
+;; (def TOTAL-PIECE-LENGTH (* 60 5))
+;; (def MIN-MOVEMENT-LENGTH 10)
+;; (def MAX-MOVEMENT-LENGTH (* 60 2))
 
 (defn random-movement-lengths
   []
@@ -68,31 +71,39 @@
            (str 0 s)
            s))))
 
+(defelem movement-view
+  [{:keys [i movement] :as attr} _]
+  (cell-let [{:keys [length body-part image scale quality]} movement]
+    (div (dissoc attr :i :movement)
+         (h2 :class "inline-block mr-2"
+             "MOVEMENT " (cell= (inc i)))
+         (p :class "inline-block italic"
+            (cell= (str "(" (min-sec-format length) ")")))
+         (p
+          (span :class "font-bold"
+                "dance: ")
+          (span :class "italic"
+                (cell= (if (and body-part image)
+                         (str body-part ", " image)
+                         "(stillness)"))))
+         (p
+          (span :class "font-bold"
+                "music: ")
+          (span :class "italic"
+                (cell= (if (and scale quality)
+                         (str scale ", " quality)
+                         "(silence)")))))))
+
 (defelem output-view
   [attr _]
   (div attr
-       (div :toggle success?
-         (for-tpl [[i {:keys [length body-part image scale quality]}]
-                   (cell= (map-indexed vector (second piece)))]
-           (div :class "inline-block p-2 w-2/5"
-             (h2 :class "inline-block mr-2"
-                 "MOVEMENT " (cell= (inc i)))
-             (p :class "inline-block italic"
-                (cell= (str "(" (min-sec-format length) ")")))
-             (p
-               (span :class "font-bold"
-                     "dance: ")
-               (span :class "italic"
-                     (cell= (if (and body-part image)
-                              (str body-part ", " image)
-                              "STILLNESS"))))
-             (p
-               (span :class "font-bold"
-                     "music: ")
-               (span :class "italic"
-                     (cell= (if (and scale quality)
-                              (str scale ", " quality)
-                              "SILENCE")))))))
-       (div :toggle (cell= (= ::error (first piece)))
-         (for-tpl [x (cell= (rest piece))]
-           (p (cell= (pr-str x)))))))
+       (if-tpl success?
+         (div
+           (for-tpl [[i movement]
+                     (cell= (map-indexed vector (second piece)))]
+             (movement-view {:i        i
+                             :movement movement
+                             :class    "inline-block p-2 w-2/5"})))
+         (div
+           (for-tpl [x (cell= (rest piece))]
+             (p (cell= (pr-str x))))))))

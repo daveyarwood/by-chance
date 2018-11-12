@@ -1,21 +1,45 @@
 (ns by-chance.performance
   (:require [by-chance.output :as out]))
 
+(defc= current-piece
+  (when out/success?
+    (second out/piece)))
+
+(defc= number-of-movements
+  (count current-piece))
+
+(defc current-movement-i nil)
+
+(defc= current-movement
+  (when (and current-piece current-movement-i)
+    [current-movement-i
+     (nth current-piece current-movement-i)]))
+
 (defc performing? false)
 
 (defn perform!
   []
-  (reset! performing? true))
+  (dosync
+    (reset! performing? true)
+    (reset! current-movement-i 0)))
 
-;; tmp
 (do-watch
-  performing?
-  (fn [_ ja?]
-    (when ja?
-      (with-timeout 1000
-        (reset! performing? false)))))
+  (cell= [performing? current-movement number-of-movements])
+  (fn [_ [performing?* [i {:keys [length]}] number-of-movements]]
+    (when performing?*
+      (with-timeout (* length 1000)
+        (if (= i (dec number-of-movements))
+          (dosync
+            (reset! performing? false)
+            (reset! current-movement-i nil))
+          (swap! current-movement-i inc))))))
 
 (defelem performance
   [attr _]
-  (div attr
-       (p "TODO")))
+  (div
+    (cell-let [[i movement] current-movement]
+      (out/movement-view
+        (merge {:i        i
+                :movement movement
+                :class    "mx-auto text-3xl"}
+               attr)))))
