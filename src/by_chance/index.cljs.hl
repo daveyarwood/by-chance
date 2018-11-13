@@ -1,5 +1,6 @@
 (page "index.html"
-  (:require [by-chance.music       :as music]
+  (:require [by-chance.audio       :as audio]
+            [by-chance.music       :as music]
             [by-chance.options     :as opts]
             [by-chance.output      :as out]
             [by-chance.performance :as perf]
@@ -33,14 +34,15 @@
 
 (defelem play
   [_ _]
-  (button
-    :class (cell= (merge (classes [:inline-block :mr-2])
-                         {:text-grey          (not out/success?)
-                          :cursor-not-allowed (not out/success?)
-                          :cursor-pointer     out/success?
-                          :hover:text-blue    out/success?}))
-    :click #(perf/perform!)
-    "▶"))
+  (let [can-play? (cell= (and out/success? audio/ready?))]
+    (button
+      :class (cell= (merge (classes [:inline-block :mr-2])
+                           {:text-grey          (not can-play?)
+                            :cursor-not-allowed (not can-play?)
+                            :cursor-pointer     can-play?
+                            :hover:text-blue    can-play?}))
+      :click #(perf/perform!)
+      "▶")))
 
 (html
   (head

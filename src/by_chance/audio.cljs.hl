@@ -1,0 +1,97 @@
+(ns by-chance.audio)
+
+(def audio-ctx
+  (let [constructor (or js/window.AudioContext
+                          js/window.webkitAudioContext)]
+    (constructor.)))
+
+(defn buffer->source+gain
+  [buffer]
+  (let [source (.createBufferSource audio-ctx)
+        gain   (.createGain audio-ctx)]
+    (aset source "buffer" buffer)
+    (.connect source gain)
+    (.connect gain (.-destination audio-ctx))
+    [source gain]))
+
+(defn buffer-cell
+  [url]
+  (with-let [c (cell nil)]
+    (let [req (js/XMLHttpRequest.)]
+      (doto req
+        (.open "GET" url)
+        (aset "responseType" "arraybuffer")
+        (aset "onload"
+              #(.decodeAudioData
+                 audio-ctx
+                 (.-response req)
+                 (fn [buffer]
+                   (reset! c [::ok buffer]))
+                 (fn [error]
+                   (reset! c [::error "error decoding audio data" error]))))
+        (aset "onerror"
+              #(reset! c [::error "error fetching audio file"]))
+        .send))))
+
+(def static "tv-static.mp3")
+(def transition "transition.mp3")
+(def urls [static transition])
+
+(def buffers
+  (into {}
+    (for [url urls]
+      [url (buffer-cell url)])))
+
+(defc= ready?
+  (every? #(= ::ok (first %))
+          [~(get buffers static)
+           ~(get buffers transition)]))
+
+(defn fade-in!
+  [gain target-volume fade-duration]
+  (let [current-time (.-currentTime audio-ctx)]
+    (-> (.-gain gain)
+        (.setValueAtTime 0.001 current-time))
+    (-> (.-gain gain)
+        (.exponentialRampToValueAtTime target-volume
+                                       (+ current-time fade-duration)))))
+
+(defn fade-out!
+  [gain fade-duration]
+  (-> (.-gain gain)
+      (.exponentialRampToValueAtTime 0.01
+                                     (+ (.-currentTime audio-ctx)
+                                        fade-duration))))
+
+(defn static!
+  [movements]
+  (let [piece-length  (* 1000 (apply + (map :length movements)))
+        [_ buffer]    @(get buffers static)
+        [source gain] (buffer->source+gain buffer)]
+    (aset source "loop" true)
+    (fade-in! gain 0.25 2)
+    (.start source 0)
+    (with-timeout piece-length
+      (fade-out! gain 2))))
+
+(defn transitions!
+  [[{:keys [length] :as movement} & more]]
+  (let [[_ buffer]    @(get buffers transition)
+        [source gain] (buffer->source+gain buffer)
+        length-ms     (* length 1000)]
+    (when movement
+      (with-timeout (- length-ms 4250)
+        (fade-in! gain 1.0 0.75)
+        (.start source 0 3 4.25))
+      (with-timeout (- length-ms 1000)
+        (fade-out! gain 1))
+      (with-timeout length-ms
+        (transitions! more)))))
+
+(defn play-score!
+  [movements]
+  (-> (.resume audio-ctx)
+      (.then #(do
+                (static! movements)
+                (transitions! movements)))))
+

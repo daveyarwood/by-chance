@@ -1,5 +1,6 @@
 (ns by-chance.performance
-  (:require [by-chance.output :as out]))
+  (:require [by-chance.audio  :as audio]
+            [by-chance.output :as out]))
 
 (defc= current-piece
   (when out/success?
@@ -21,7 +22,8 @@
   []
   (dosync
     (reset! performing? true)
-    (reset! current-movement-i 0)))
+    (reset! current-movement-i 0)
+    (audio/play-score! @current-piece)))
 
 (do-watch
   (cell= [performing? current-movement number-of-movements])
