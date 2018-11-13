@@ -30,10 +30,7 @@
   (fn [_ [performing?* [i {:keys [length]}] number-of-movements]]
     (when performing?*
       (with-timeout (* length 1000)
-        (if (= i (dec number-of-movements))
-          (dosync
-            (reset! performing? false)
-            (reset! current-movement-i nil))
+        (when (< i (dec number-of-movements))
           (swap! current-movement-i inc))))))
 
 (defelem performance

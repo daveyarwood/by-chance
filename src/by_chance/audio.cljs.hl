@@ -93,5 +93,5 @@
   (-> (.resume audio-ctx)
       (.then #(do
                 (static! movements)
-                (transitions! movements)))))
+                (transitions! (butlast movements))))))
 
