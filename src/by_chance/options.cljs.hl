@@ -1,11 +1,10 @@
 (ns by-chance.options
-  (:require [by-chance.music  :as    music]
-            [cljs.reader      :refer (read-string)]
-            [clojure.string   :as    str]))
+  (:require [cljs.reader    :refer (read-string)]
+            [clojure.string :as    str]))
 
 (def initial-options
   {:dance {:body-parts [], :dance-qualities []}
-   :music {:scales music/scales, :music-qualities []}})
+   :music {:music-qualities []}})
 
 (defc options nil)
 
@@ -34,14 +33,12 @@
 (def categories
   [["body parts"        [:dance :body-parts]]
    ["dance qualities"   [:dance :dance-qualities]]
-   ["musical scales"    [:music :scales]]
    ["musical qualities" [:music :music-qualities]]])
 
 (defelem options-view
   [attr _]
   (div attr
-       (for [[lbl path] categories
-             :when (not= "musical scales" lbl)]
+       (for [[lbl path] categories]
          (div :class "mb-8"
               (input :type "text"
                      :class "mb-2 px-2 py-2 rounded-full shadow

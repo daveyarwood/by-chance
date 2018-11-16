@@ -1,5 +1,6 @@
 (ns by-chance.output
-  (:require [by-chance.options :as opts]))
+  (:require [by-chance.music   :as music]
+            [by-chance.options :as opts]))
 
 ;; all lengths here are in seconds
 (def TOTAL-PIECE-LENGTH (* 60 5))
@@ -21,7 +22,7 @@
 (defn random-piece
   [{:keys [music dance]}]
   (let [{:keys [body-parts dance-qualities]} dance
-        {:keys [scales music-qualities]}  music
+        {:keys [music-qualities]}  music
         lengths  (random-movement-lengths)
         silent-i (rand-int (count lengths))
         still-i  (rand-int (count lengths))]
@@ -44,7 +45,7 @@
             (range (count lengths))
             (shuffle body-parts)
             (shuffle dance-qualities)
-            (shuffle scales)
+            (shuffle music/scales)
             (shuffle music-qualities))])))
 
 (defc piece nil)
