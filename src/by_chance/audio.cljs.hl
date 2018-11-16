@@ -69,7 +69,7 @@
         [_ buffer]    @(get buffers static)
         [source gain] (buffer->source+gain buffer)]
     (aset source "loop" true)
-    (fade-in! gain 0.25 2)
+    (fade-in! gain 0.15 2)
     (.start source 0)
     (with-timeout piece-length
       (fade-out! gain 2))))
