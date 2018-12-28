@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function read_script_file() {
+function read_script() {
   filename="$1"
   shift
   gs_args="$@" # optional, e.g. "-l en-au"
@@ -16,5 +16,5 @@ find $narration_dir | tail -n+2 | sort | while read filename; do
   echo
   read -s -p "-- Press ENTER to continue. --" < /dev/tty
   echo
-  read_script_file $filename "$@"
+  read_script $filename "$@"
 done

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+function read_script() {
+  filename="$1"
+  shift
+  gs_args="$@" # optional, e.g. "-l en-au"
+
+  cat $filename | while read line; do
+    google_speech $gs_args "$line"
+  done
+}
+
+script_dir=$(dirname $0)
+narration_dir="$script_dir/../narration"
+fifo="$script_dir/../narration.fifo"
+
+narration_files=$(find "$narration_dir" | tail -n+2 | sort)
+
+i=1
+
+rm -f $fifo
+mkfifo $fifo 2>/dev/null || true
+
+while true; do
+  filename=$(echo -e "$narration_files" | sed -n "${i}p")
+  if [[ -z "$filename" ]]; then break; fi
+
+  echo -------------------------
+  echo "Waiting for a \"bang\" on: $fifo"
+  echo -------------------------
+  cat $fifo >/dev/null
+
+  echo --------------------------------------------------
+  echo "Reading script: $filename"
+  echo --------------------------------------------------
+  read_script $filename "$@"
+  ((++i))
+done
+
+echo
