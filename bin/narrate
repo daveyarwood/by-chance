@@ -1,0 +1,20 @@
+#!/bin/bash
+
+function read_script_file() {
+  filename="$1"
+  shift
+  gs_args="$@" # optional, e.g. "-l en-au"
+  cat $filename | while read line; do
+    google_speech $gs_args "$line"
+  done
+}
+
+script_dir=$(dirname $0)
+narration_dir=$script_dir/../narration
+
+find $narration_dir | tail -n+2 | sort | while read filename; do
+  echo
+  read -s -p "-- Press ENTER to continue. --" < /dev/tty
+  echo
+  read_script_file $filename "$@"
+done
