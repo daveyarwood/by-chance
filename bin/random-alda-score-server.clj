@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
-"exec" "clojure" "-Sdeps" "{:deps {io.djy/alda-clj {:mvn/version \"0.1.4\"}}}" "$0" "$@"
+"exec" "clojure" "-Sdeps" "{:deps {io.djy/alda-clj {:mvn/version \"0.1.4\"} io.pedestal/pedestal.service {:mvn/version \"0.5.5\"} io.pedestal/pedestal.jetty   {:mvn/version \"0.5.5\"}}}" "$0" "$@"
 
-(require '[alda.core :refer :all])
+(require '[alda.core :refer :all]
+         '[io.pedestal.http :as http]
+         '[io.pedestal.http.body-params :refer (body-params)])
 
-(def SCORE-LENGTH-MS
-  (if-let [arg (first *command-line-args*)]
-    (* (Integer/parseInt arg) 1000)
-    (do
-      (println "Usage: <script> SCORE-LENGTH-IN-SECONDS")
-      (System/exit 1))))
+(defn random-rest-rate
+  []
+  (/ (rand-nth (range 0 70)) 100.0))
 
-(def REST-RATE (/ (rand-nth (range 0 70)) 100.0))
 (def MS-LOWER 30)
 (def MS-UPPER 3000)
 (def MIN-OCTAVE 1)
@@ -151,13 +149,15 @@
      "midi-gunshot"
      "midi-percussion"]))
 
-(def instruments
+(defn random-instruments
+  []
   (->> (map vector
             (repeatedly NUMBER-OF-INSTRUMENTS random-midi-instrument)
             (repeatedly NUMBER-OF-INSTRUMENTS #(rand-int 101)))
        (sort-by second)))
 
-(def scale
+(defn random-scale
+  []
   (if (< (rand) CHROMATIC-SCALE-PROBABILITY)
     []
     (remove nil?
@@ -165,20 +165,15 @@
        (rand-nth [:flat nil :sharp])
        (rand-nth [:major :dorian :phrygian :lydian :mixolydian :minor :locrian])])))
 
-(println "Score length:" (/ SCORE-LENGTH-MS 1000) "seconds")
-(println "Rest rate:" (str (Math/round (* 100 REST-RATE)) \%))
-(println "Scale:" (if (empty? scale) :chromatic scale))
-(println "Instruments:" instruments)
-
 (defn random-note
-  [ms-value]
+  [ms-value rest-rate scale]
   (let [root-note     (when-let [root-note (first scale)]
                         (first (name root-note)))
         random-letter #(rand-nth (if root-note
                                    (concat (remove #{root-note} "abcdefg")
                                            (repeat 4 root-note))
                                    "abcdefg"))]
-    (if (< (rand) REST-RATE)
+    (if (< (rand) rest-rate)
       (pause (ms ms-value))
       (let [o (rand-nth (range MIN-OCTAVE (inc MAX-OCTAVE)))
             n (keyword (str (random-letter)))]
@@ -186,42 +181,60 @@
          (note (pitch n) (ms ms-value))]))))
 
 (defn random-notes
-  []
-  (loop [notes [], ms-remaining SCORE-LENGTH-MS]
+  [score-length-ms rest-rate scale]
+  (loop [notes [], ms-remaining score-length-ms]
     (let [ms (rand-nth (range MS-LOWER MS-UPPER))]
       (if (> ms ms-remaining)
         notes
-        (recur (conj notes (random-note ms))
+        (recur (conj notes (random-note ms rest-rate scale))
                (- ms-remaining ms))))))
 
-(println)
-(println (apply str (repeat 60 \-)))
-(when-not (empty? scale) (println))
+(defn random-score!
+  [score-length-ms]
+  (let [rest-rate   (random-rest-rate)
+        instruments (random-instruments)
+        scale       (random-scale)]
+    (println "Score length:" (/ score-length-ms 1000) "seconds")
+    (println "Rest rate:" (str (Math/round (* 100 rest-rate)) \%))
+    (println "Scale:" (if (empty? scale) :chromatic scale))
+    (println "Instruments:" instruments)
 
-(println
-  (play!
-    (if (empty? scale)
-      ""
-      [(key-sig! (vec scale)) "\n"])
-    (for [[instrument pan-value] instruments]
-      ["\n"
-       (part instrument)
-       (panning pan-value)
-       (random-notes)])))
+    (play!
+      (if (empty? scale)
+        ""
+        [(key-sig! (vec scale)) "\n"])
+      (for [[instrument pan-value] instruments]
+        ["\n"
+         (part instrument)
+         (panning pan-value)
+         (random-notes score-length-ms rest-rate scale)]))))
 
-(println)
-
-(def done? (atom false))
+(defn random-score-response
+  [{:keys [form-params] :as request}]
+  (if-let [score-length-ms
+           (try (* 1000 (Integer/parseInt (:length form-params)))
+                (catch Throwable t
+                  {:status 400
+                   :body   "Invalid `length` parameter."}))]
+    {:status 200
+     :body   (random-score! score-length-ms)}
+    {:status 400
+     :body   "Request missing `length` parameter."}))
 
 (.addShutdownHook
   (Runtime/getRuntime)
-  (Thread. #(when-not @done?
+  (Thread. #(do
               (println (str \newline (stop!)))
               ;; give it a little time to run "alda stop" before exiting
               (Thread/sleep 500))))
 
-(Thread/sleep (+ SCORE-LENGTH-MS 2500))
-(reset! done? true)
-(println "Score length elapsed. Exiting.")
-(System/exit 0)
+(println "Starting server...")
+
+(-> {::http/routes #{["/random-alda-score" :post `random-score-response]}
+     ::http/port   8008
+     ::http/type   :jetty}
+    http/default-interceptors
+    (update ::http/interceptors conj (body-params))
+    http/create-server
+    http/start)
 
