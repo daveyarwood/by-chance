@@ -41,29 +41,32 @@
        (for [[lbl path] categories]
          (div :class "mb-8"
               (input :type "text"
-                     :class "mb-2 px-2 py-2 rounded-full shadow
+                     :class "mb-2 px-2 py-2 rounded-full shadow-md
                              hover:shadow-outline focus:outline-none
-                             focus:shadow-outline"
+                             focus:shadow-outline inline-block
+                             bg-blue-light text-blue-lightest"
                      :keyup #(when (= "Enter" (.-key %))
                                (let [target (.-target %)]
                                  (when-not (str/blank? (.-value target))
                                    (swap! options update-in path
                                           conj (.-value target))
                                    (set! (.-value target) "")))))
-              (p :class "font-bold" (str lbl ": "))
-              (p
-               (for-tpl [[i option] (cell= (->> (get-in options path)
-                                                (map-indexed vector)))]
-                 (span :class "mr-3 hover:text-red-dark hover:font-bold
-                               cursor-pointer"
-                       :click (fn []
-                                (swap! options update-in path
-                                       #(vec (concat (take @i %)
-                                                     (drop (inc @i) %)))))
+              (p :class "font-bold inline-block ml-2" lbl)
+              (p :class "w-7/8"
+                (for-tpl [[i option] (cell= (->> (get-in options path)
+                                                 (map-indexed vector)))]
+                  (span :class "mr-3 font-normal text-sm
+                               hover:text-red-dark hover:font-bold
+                               cursor-pointer inline-block"
+                        :click (fn []
+                                 (swap! options update-in path
+                                        #(vec (concat (take @i %)
+                                                      (drop (inc @i) %)))))
 
-                       option)))))
+                        option)))))
        (div
-         (a :class "italic no-underline text-grey hover:text-red-dark"
+         (a :class "italic no-underline
+                    text-blue-lightest hover:text-red-dark"
             :href  "#"
             :click reset-options!
             "clear all"))))
