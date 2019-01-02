@@ -30,9 +30,20 @@
   [{:keys [music dance]}]
   (let [{:keys [body-parts dance-qualities]} dance
         {:keys [music-qualities]}  music
-        lengths  (random-movement-lengths)
-        silent-i (rand-int (count lengths))
-        still-i  (rand-int (count lengths))]
+        lengths   (random-movement-lengths)
+        ;; The musician has one silent movement.
+        silent-i  (rand-int (count lengths))
+        ;; In addition to the silent movement, there is one movement where,
+        ;; instead of music, the server plays "mystery content".
+        _ (assert (> (count lengths) 4))
+        mystery-i (loop [i silent-i]
+                    (if (= i silent-i)
+                      ;; The movement with "mystery content" should be at least
+                      ;; the 4th movement.
+                      (recur (+ 3 (rand-int (- (count lengths) 3))))
+                      i))
+        ;; The dancer has one still movement.
+        still-i   (rand-int (count lengths))]
     (if (some #(< (count %) (count lengths))
               [body-parts dance-qualities music-qualities])
       [::error
@@ -43,7 +54,14 @@
       [::success
        (map (fn [i body-part dance-quality synth-patch music-quality]
               (merge {:length (nth lengths i)}
-                     (when-not (= silent-i i)
+                     (cond
+                       (= silent-i i)
+                       nil
+
+                       (= mystery-i i)
+                       {:mystery? true}
+
+                       :else
                        {:synth-patch   synth-patch
                         :music-quality music-quality})
                      (when-not (= still-i i)
@@ -80,7 +98,8 @@
 
 (defelem movement-view
   [{:keys [i movement] :as attr} _]
-  (cell-let [{:keys [length body-part dance-quality synth-patch music-quality]}
+  (cell-let [{:keys [length body-part dance-quality synth-patch music-quality
+                     mystery?]}
              movement]
     (div (dissoc attr :i :movement)
          (h2 :class "inline-block mr-2"
@@ -98,8 +117,14 @@
           (span :class "font-bold"
                 "music: ")
           (span :class "italic"
-                (cell= (if (and synth-patch music-quality)
+                (cell= (cond
+                         (and synth-patch music-quality)
                          (str "synth patch " synth-patch ", " music-quality)
+
+                         mystery?
+                         "???"
+
+                         :else
                          "(silence)")))))))
 
 (defn output-view-column
