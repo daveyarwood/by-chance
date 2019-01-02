@@ -39,3 +39,8 @@
 (def scales
   (concat diatonic-scales other-scales))
 
+;; I'm using the factory presets on a Korg Minilogue for this. On a Minilogue,
+;; the first 100 patches are factory presets and the last 100 are user presets,
+;; which I am choosing not to use for this piece.
+(def synth-patches
+  (range 1 101))

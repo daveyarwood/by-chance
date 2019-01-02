@@ -41,10 +41,10 @@
         :dance-qualities (count dance-qualities)
         :music-qualities (count music-qualities)}]
       [::success
-       (map (fn [i body-part dance-quality scale music-quality]
+       (map (fn [i body-part dance-quality synth-patch music-quality]
               (merge {:length (nth lengths i)}
                      (when-not (= silent-i i)
-                       {:scale         scale
+                       {:synth-patch   synth-patch
                         :music-quality music-quality})
                      (when-not (= still-i i)
                        {:body-part     body-part
@@ -52,7 +52,7 @@
             (range (count lengths))
             (shuffle body-parts)
             (shuffle dance-qualities)
-            (shuffle music/scales)
+            (shuffle music/synth-patches)
             (shuffle music-qualities))])))
 
 (defc piece nil)
@@ -80,7 +80,7 @@
 
 (defelem movement-view
   [{:keys [i movement] :as attr} _]
-  (cell-let [{:keys [length body-part dance-quality scale music-quality]}
+  (cell-let [{:keys [length body-part dance-quality synth-patch music-quality]}
              movement]
     (div (dissoc attr :i :movement)
          (h2 :class "inline-block mr-2"
@@ -98,8 +98,8 @@
           (span :class "font-bold"
                 "music: ")
           (span :class "italic"
-                (cell= (if (and scale music-quality)
-                         (str scale ", " music-quality)
+                (cell= (if (and synth-patch music-quality)
+                         (str "synth patch " synth-patch ", " music-quality)
                          "(silence)")))))))
 
 (defn output-view-column
