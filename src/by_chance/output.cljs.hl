@@ -34,7 +34,8 @@
         ;; The musician has one silent movement.
         silent-i  (rand-int (count lengths))
         ;; In addition to the silent movement, there is one movement where,
-        ;; instead of music, the server plays "mystery content".
+        ;; instead of music, there is a special backing track consisting of
+        ;; "mystery content".
         _ (assert (> (count lengths) 4))
         mystery-i (loop [i silent-i]
                     (if (= i silent-i)
