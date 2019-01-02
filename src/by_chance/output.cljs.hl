@@ -10,13 +10,20 @@
 (defn random-movement-lengths
   []
   (loop [lengths []]
-    (let [piece-length (apply + lengths)]
-      (if (< piece-length TOTAL-PIECE-LENGTH)
-        (let [length (-> MIN-MOVEMENT-LENGTH
-                         (+ (rand-int (- MAX-MOVEMENT-LENGTH
-                                         MIN-MOVEMENT-LENGTH)))
-                         (min (- TOTAL-PIECE-LENGTH piece-length)))]
-          (recur (conj lengths length)))
+    (let [piece-length (apply + lengths)
+          remaining    (- TOTAL-PIECE-LENGTH piece-length)
+          length       (-> MIN-MOVEMENT-LENGTH
+                           (+ (rand-int (- MAX-MOVEMENT-LENGTH
+                                           MIN-MOVEMENT-LENGTH)))
+                           (min (- TOTAL-PIECE-LENGTH piece-length)))]
+      (cond
+        (< (+ piece-length length) TOTAL-PIECE-LENGTH)
+        (recur (conj lengths length))
+
+        (>= remaining MIN-MOVEMENT-LENGTH)
+        (recur (conj lengths remaining))
+
+        :else
         lengths))))
 
 (defn random-piece
@@ -77,7 +84,7 @@
              movement]
     (div (dissoc attr :i :movement)
          (h2 :class "inline-block mr-2"
-             "MOVEMENT " (cell= (inc i)))
+             "SECTION " (cell= (inc i)))
          (p :class "inline-block italic"
             (cell= (str "(" (min-sec-format length) ")")))
          (p
@@ -95,16 +102,23 @@
                          (str scale ", " music-quality)
                          "(silence)")))))))
 
+(defn output-view-column
+  [movements]
+  (div :class "flex flex-col w-1/3"
+    (for-tpl [[i movement] movements]
+      (movement-view {:i        i
+                      :movement movement
+                      :class    "p-2"}))))
+
 (defelem output-view
   [attr _]
   (div attr
        (if-tpl success?
-         (div
-           (for-tpl [[i movement]
-                     (cell= (map-indexed vector (second piece)))]
-             (movement-view {:i        i
-                             :movement movement
-                             :class    "inline-block p-2 w-2/5"})))
+         (div :class "flex"
+           (let [movements (cell= (map-indexed vector (second piece)))]
+             [(output-view-column (cell= (->> movements (take 3))))
+              (output-view-column (cell= (->> movements (drop 3) (take 3))))
+              (output-view-column (cell= (->> movements (drop 6))))]))
          (div
            (for-tpl [x (cell= (rest piece))]
              (p (cell= (pr-str x))))))))
