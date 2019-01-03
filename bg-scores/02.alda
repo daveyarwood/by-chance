@@ -1,0 +1,30 @@
+(key-sig! [:e :flat :locrian])
+
+kphrase = o2 f2397ms o3 d2598ms o3 d2638ms o3 g1949ms
+mbphrase = o2 e875ms o2 e1044ms o2 c2667ms o3 e2939ms o1 e659ms
+
+ midi-kalimba "mk1":
+(panning 50)
+kphrase * 100
+
+ midi-kalimba "mk2":
+(panning 60)
+(vol 75)
+r250ms
+kphrase * 100
+
+ midi-kalimba "mk3":
+(panning 70)
+(vol 50)
+r500ms
+kphrase * 100
+
+ midi-kalimba "mk4":
+(panning 80)
+(vol 25)
+r750ms
+kphrase * 100
+
+ midi-music-box:
+(panning 6)
+mbphrase * 100
