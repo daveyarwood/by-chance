@@ -1,5 +1,15 @@
 Hello.
+
 Welcome.
+
+
+
+
+
+
+
+
+
 
 
 
@@ -21,9 +31,206 @@ Please take a seat.
 
 
 
+
+
+
+
+
+Hello.
+
+Welcome.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Please take a seat.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Come on in, don't be shy.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thank you for coming.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hello, and welcome.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hello.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Come on in.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Please take a seat.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Don't be shy.
 
 
-I am composed of bytes, but I will not bite.
-Get it?
+
+
+
+
+
+
+
+
+I am made up of bytes, but I will not bite.
+
+
+
+
+
+
+
+
+
+
+Thank you for coming.
+
+
+
+
+
+
+
+
+
+
+Please take a seat.
+
+
+
+
+
+
+
+
+
+
+Come on in, don't be shy.
+
+
+
+
+
+
+
+
+
+
+Hello, hello.
 
