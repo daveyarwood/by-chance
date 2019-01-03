@@ -1,0 +1,14 @@
+(tempo! 85)
+
+md = (vol 80)
+lg = (vol 100)
+
+midi-timpani:
+  (panning 90)
+  o2 md g8 %downbeat [ lg g2.. o1 md g8 lg g2.. o2 md g8 ]*99
+
+midi-string-ensemble-2:
+  (panning 10)
+  (volume 60)
+  (quant 99)
+  o1 @downbeat g1~1~1~1 *99
