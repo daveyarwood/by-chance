@@ -1,0 +1,18 @@
+(tempo! 90)
+
+midi-electric-guitar-jazz:
+  (quant 400)
+  (pan 0)
+  (vol 75)
+  [
+    o3 [ c8   e g   b > e < b   g e ]*4
+    o2 [ a8 > e g   b > e < b   g e < ]*4
+    o3 [ c8   f g > c   e   c < g f ]*4
+  ]*99
+
+midi-fx-brightness:
+  [
+    o2 c1~1~1~1
+    o1 a1~1~1~1
+    o1 f1~1~1~1
+  ]*99
