@@ -4,7 +4,7 @@
 
 ;; all lengths here are in seconds
 (def TOTAL-PIECE-LENGTH (* 60 7))
-(def MIN-MOVEMENT-LENGTH 20)
+(def MIN-MOVEMENT-LENGTH 30)
 (def MAX-MOVEMENT-LENGTH 90)
 
 (defn random-movement-lengths
