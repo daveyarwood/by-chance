@@ -1,6 +1,5 @@
 (ns by-chance.output
-  (:require [by-chance.music   :as music]
-            [by-chance.options :as opts]))
+  (:require [by-chance.options :as opts]))
 
 ;; all lengths here are in seconds
 (def TOTAL-PIECE-LENGTH (* 60 7))
@@ -27,52 +26,31 @@
         lengths))))
 
 (defn random-piece
-  [{:keys [music dance]}]
+  [{:keys [dance]}]
   (let [{:keys [body-parts dance-qualities]} dance
-        {:keys [music-qualities]}  music
         lengths   (random-movement-lengths)
-        ;; The musician has one silent movement.
-        silent-i  (rand-int (count lengths))
-        ;; In addition to the silent movement, there is one movement where,
-        ;; instead of music, there is a special backing track consisting of
-        ;; "mystery content".
-        _ (assert (> (count lengths) 4))
-        mystery-i (loop [i silent-i]
-                    (if (= i silent-i)
-                      ;; The movement with "mystery content" should be at least
-                      ;; the 4th movement.
-                      (recur (+ 3 (rand-int (- (count lengths) 3))))
-                      i))
+        ;; There is one movement where, instead of music, there is a special
+        ;; backing track consisting of "mystery content".
+        mystery-i (rand-int (count lengths))
         ;; The dancer has one still movement.
         still-i   (rand-int (count lengths))]
     (if (some #(< (count %) (count lengths))
-              [body-parts dance-qualities music-qualities])
+              [body-parts dance-qualities])
       [::error
        (str "Not enough options. Need " (count lengths) ".")
        {:body-parts      (count body-parts)
-        :dance-qualities (count dance-qualities)
-        :music-qualities (count music-qualities)}]
+        :dance-qualities (count dance-qualities)}]
       [::success
-       (map (fn [i body-part dance-quality synth-patch music-quality]
+       (map (fn [i body-part dance-quality]
               (merge {:length (nth lengths i)}
-                     (cond
-                       (= silent-i i)
-                       nil
-
-                       (= mystery-i i)
-                       {:mystery? true}
-
-                       :else
-                       {:synth-patch   synth-patch
-                        :music-quality music-quality})
+                     (when (= mystery-i i)
+                       {:mystery? true})
                      (when-not (= still-i i)
                        {:body-part     body-part
                         :dance-quality dance-quality})))
             (range (count lengths))
             (shuffle body-parts)
-            (shuffle dance-qualities)
-            (shuffle music/synth-patches)
-            (shuffle music-qualities))])))
+            (shuffle dance-qualities))])))
 
 (defc piece nil)
 
@@ -99,8 +77,7 @@
 
 (defelem movement-view
   [{:keys [i movement] :as attr} _]
-  (cell-let [{:keys [length body-part dance-quality synth-patch music-quality
-                     mystery?]}
+  (cell-let [{:keys [length body-part dance-quality mystery?]}
              movement]
     (div (dissoc attr :i :movement)
          (h2 :class "inline-block mr-2"
@@ -108,25 +85,10 @@
          (p :class "inline-block italic"
             (cell= (str "(" (min-sec-format length) ")")))
          (p
-          (span :class "font-bold"
-                "dance: ")
           (span :class "italic"
                 (cell= (if (and body-part dance-quality)
-                         (str body-part ", " dance-quality)
-                         "(stillness)"))))
-         (p
-          (span :class "font-bold"
-                "music: ")
-          (span :class "italic"
-                (cell= (cond
-                         (and synth-patch music-quality)
-                         (str "synth patch " synth-patch ", " music-quality)
-
-                         mystery?
-                         "???"
-
-                         :else
-                         "(silence)")))))))
+                         (str dance-quality ", " body-part)
+                         "(stillness)")))))))
 
 (defn output-view-column
   [movements]

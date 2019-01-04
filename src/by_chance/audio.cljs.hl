@@ -112,13 +112,14 @@
         length-ms     (* length 1000)]
     (when (and buffer movement)
       (fade-in! gain 1.0 2.0)
-      (when (:music-quality movement)
+      (when-not (:mystery? movement)
         (.start source 0 0 (+ length-ms 5000)))
       (with-timeout length-ms
         (fade-out! gain 5)
         (random-bg-scores!* more-buffers more-movements))
       (with-timeout (+ length-ms 5000)
-        (.stop source)))))
+        (when-not (:mystery? movement)
+          (.stop source))))))
 
 (defn random-bg-scores!
   [movements]

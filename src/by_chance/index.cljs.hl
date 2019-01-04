@@ -1,6 +1,5 @@
 (page "index.html"
   (:require [by-chance.audio       :as audio]
-            [by-chance.music       :as music]
             [by-chance.options     :as opts]
             [by-chance.output      :as out]
             [by-chance.performance :as perf]
