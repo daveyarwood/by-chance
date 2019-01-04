@@ -1,0 +1,23 @@
+(defn random-pause
+  []
+  (pause (duration (ms (rand-nth (range 300 4000))))))
+
+(defn pizz-sequence
+  []
+  (for [octave-number (range 1 5)]
+    [(octave octave-number)
+     (note (pitch :d) (duration (ms 1000)))
+     (random-pause)]))
+
+(defn heli-sequence
+  []
+  [(random-pause)
+   (note (pitch :c) (duration (ms (rand-nth (range 3000 10000)))))])
+
+midi-pizzicato-strings:
+  (pan 30)
+  (repeatedly 99 pizz-sequence)
+
+midi-helicopter:
+  (pan 100) (vol 50)
+  o0 (repeatedly 99 heli-sequence)
