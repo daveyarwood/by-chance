@@ -17,6 +17,7 @@
      (nth current-piece current-movement-i)]))
 
 (defc performing? false)
+(defc finished? false)
 
 (defn perform!
   []
@@ -30,12 +31,13 @@
   (fn [_ [performing?* [i {:keys [length]}] number-of-movements]]
     (when performing?*
       (with-timeout (* length 1000)
-        (when (< i (dec number-of-movements))
-          (swap! current-movement-i inc))))))
+        (if (< i (dec number-of-movements))
+          (swap! current-movement-i inc)
+          (reset! finished? true))))))
 
 (defelem performance
   [attr _]
-  (div
+  (div :toggle (cell= (not finished?))
     (cell-let [[i movement] current-movement]
       (out/movement-view
         (merge {:i        i
