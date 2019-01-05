@@ -1,0 +1,30 @@
+midi-pizzicato-strings:
+  (pan 10) (vol 70)
+
+  [
+    r1 *4
+
+    [ o6 g16 d < b g f+ d < b   g   f+2 | r1 ]*2
+    [ o6 g16 d < b g f  d < b   g   f2  | r1 ]*2
+    [ o6 e16 c < b g e  d   c < b   g2  | r1 ]*2
+    [ o6 d16 c < b g f+ d < b   f+  d2  | r1 ]*2
+  ]*99
+
+midi-electric-piano-2:
+  (pan 90) (vol 60)
+  (quant 150)
+
+  [
+    r1 *4
+
+    [ r1 o3 b1/>d/f+/a ]*2
+    [ r1 o3 b1/>d/f/g ]*2
+    [ r1 o3 b1/>c/e/g ]*2
+    [ r1 o3 a1/b/>d/f+ ]*2
+  ]*99
+
+electric-bass:
+  o1 b4 *999
+
+midi-percussion:
+  o2 c4 *999
