@@ -27,7 +27,7 @@
 
 (defn random-piece
   [{:keys [dance]}]
-  (let [{:keys [body-parts dance-qualities]} dance
+  (let [{:keys [body-parts movement-qualities]} dance
         lengths   (random-movement-lengths)
         ;; There is one movement where, instead of music, there is a special
         ;; backing track consisting of "mystery content".
@@ -35,11 +35,11 @@
         ;; The dancer has one still movement.
         still-i   (rand-int (count lengths))]
     (if (some #(< (count %) (count lengths))
-              [body-parts dance-qualities])
+              [body-parts movement-qualities])
       [::error
        (str "Not enough options. Need " (count lengths) ".")
        {:body-parts      (count body-parts)
-        :dance-qualities (count dance-qualities)}]
+        :movement-qualities (count movement-qualities)}]
       [::success
        (map (fn [i body-part dance-quality]
               (merge {:length (nth lengths i)}
@@ -50,7 +50,7 @@
                         :dance-quality dance-quality})))
             (range (count lengths))
             (shuffle body-parts)
-            (shuffle dance-qualities))])))
+            (shuffle movement-qualities))])))
 
 (defc piece nil)
 
