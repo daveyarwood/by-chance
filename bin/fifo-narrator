@@ -14,6 +14,7 @@ function read_script() {
 
 script_dir=$(dirname $0)
 narration_dir="$script_dir/../narration"
+assets_dir="$script_dir/../assets"
 fifo="$script_dir/../narration.fifo"
 
 narration_files=$(find "$narration_dir" | tail -n+2 | sort)
@@ -27,6 +28,12 @@ while true; do
   filename=$(echo -e "$narration_files" | sed -n "${i}p")
   if [[ -z "$filename" ]]; then break; fi
 
+  if [[ "$filename" == *08-starting.txt ]]; then
+    play "$assets_dir/jeopardy.mp3"
+    read_script "$filename" "$@"
+    break
+  fi
+
   echo -------------------------
   echo "Waiting for a \"bang\" on: $fifo"
   echo -------------------------
@@ -35,7 +42,7 @@ while true; do
   echo --------------------------------------------------
   echo "Reading script: $filename"
   echo --------------------------------------------------
-  read_script $filename "$@"
+  read_script "$filename" "$@"
   ((++i))
 done
 
