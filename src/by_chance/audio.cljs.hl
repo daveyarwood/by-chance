@@ -43,8 +43,10 @@
     (str (if (< n 10) (str 0 n) n)
          ".mp3")))
 
+(def internal-monologue "internal-monologue.mp3")
+
 (def urls
-  (concat [static transition] bg-score-urls))
+  (concat [static transition internal-monologue] bg-score-urls))
 
 (def buffers
   (into {}
@@ -98,33 +100,34 @@
         (transitions! more)))))
 
 (defn bg-score-buffer-cells
-  [amount-needed]
-  (->> bg-score-urls
-       (map #(deref (get buffers %)))
-       shuffle
-       cycle
-       (take amount-needed)))
+  [movements]
+  (map (fn [{:keys [mystery?]} bg-score-url]
+         @(get buffers (if mystery? internal-monologue bg-score-url)))
+       movements
+       (->> bg-score-urls
+            shuffle
+            cycle
+            (take (count movements)))))
 
 (defn random-bg-scores!*
   [[[_ buffer] & more-buffers]
-   [{:keys [length] :as movement} & more-movements]]
+   [{:keys [length mystery?] :as movement} & more-movements]]
   (let [[source gain] (buffer->source+gain buffer)
         length-ms     (* length 1000)]
     (when (and buffer movement)
-      (fade-in! gain 1.0 2.0)
-      (when-not (:mystery? movement)
-        (.start source 0 0 (+ length-ms 5000)))
+      (when-not mystery?
+        (fade-in! gain 1.0 2.0))
+      (.start source 0 0 (+ length-ms 5000))
       (with-timeout length-ms
-        (fade-out! gain 5)
+        (when-not mystery?
+          (fade-out! gain 5))
         (random-bg-scores!* more-buffers more-movements))
       (with-timeout (+ length-ms 5000)
-        (when-not (:mystery? movement)
-          (.stop source))))))
+        (.stop source)))))
 
 (defn random-bg-scores!
   [movements]
-  (random-bg-scores!* (bg-score-buffer-cells (count movements))
-                      movements))
+  (random-bg-scores!* (bg-score-buffer-cells movements) movements))
 
 (defn play-score!
   [movements]

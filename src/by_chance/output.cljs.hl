@@ -31,7 +31,7 @@
         lengths   (random-movement-lengths)
         ;; There is one movement where, instead of music, there is a special
         ;; backing track consisting of "mystery content".
-        mystery-i (rand-int (count lengths))
+        mystery-i (rand-nth (range 2 (dec (count lengths))))
         ;; The dancer has one still movement.
         still-i   (rand-int (count lengths))]
     (if (some #(< (count %) (count lengths))
@@ -42,9 +42,9 @@
         :movement-qualities (count movement-qualities)}]
       [::success
        (map (fn [i body-part dance-quality]
-              (merge {:length (nth lengths i)}
-                     (when (= mystery-i i)
-                       {:mystery? true})
+              (merge (if (= mystery-i i)
+                       {:length 48 :mystery? true}
+                       {:length (nth lengths i)})
                      (when-not (= still-i i)
                        {:body-part     body-part
                         :dance-quality dance-quality})))
