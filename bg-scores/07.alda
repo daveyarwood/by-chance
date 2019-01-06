@@ -1,0 +1,43 @@
+(tempo! 150)
+
+pianoPart1 = [
+  (quant 90)
+  [
+    [ o2 g4/>d/g/b/>f+ ] *16
+    [ o2 d4/a/>d/f+/>c+ ] *16
+  ]*4
+]
+
+pianoPart2 = [
+  (quant 400)
+  [
+    {o4 f+ < b g d < g}2 *8
+    {o4 c+ < f+ d < a d}2 *8
+  ]*2
+]
+
+pianoPart = [ pianoPart1 pianoPart2 ]*20
+
+midi-electric-grand-piano "echo":
+  (vol 80) (pan 25)
+  pianoPart
+
+midi-bright-acoustic-piano "main":
+  (vol 50) (pan 100)
+  r8 pianoPart
+
+midi-synth-bass-2:
+  (quant 100)
+  [
+    # pianoPart1 unaccompanied
+    r1~1~1~1 *4
+
+    # pianoPart1 with this accompaniment
+    [
+      [ o1 g2.. > d8 a1 ]*2
+      [ o1 d2.. > f+8 > c+1 ]*2
+    ]*2
+
+    # pianoPart2 unaccompanied
+    r1~1~1~1 *4
+  ]* 20
