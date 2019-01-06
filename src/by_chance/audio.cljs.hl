@@ -45,8 +45,11 @@
 
 (def internal-monologue "internal-monologue.mp3")
 
+(def the-end "the-end.mp3")
+
 (def urls
-  (concat [static transition internal-monologue] bg-score-urls))
+  (concat [static transition internal-monologue the-end]
+          bg-score-urls))
 
 (def buffers
   (into {}
@@ -133,4 +136,11 @@
   [movements]
   (-> (.resume audio-ctx)
       (.then #(random-bg-scores! movements))))
+
+(defn say-the-end!
+  []
+  (let [[_ buffer] @(get buffers the-end)
+        [source _] (buffer->source+gain buffer)]
+    (with-timeout 2000
+      (.start source))))
 
