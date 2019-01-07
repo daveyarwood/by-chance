@@ -3,7 +3,7 @@
             [clojure.string :as    str]))
 
 (def initial-options
-  {:dance {:body-parts [], :movement-qualities []}})
+  {:dance {:body-parts [], :movement-qualities [], :places []}})
 
 (defc options nil)
 
@@ -31,7 +31,8 @@
 
 (def categories
   [["body parts"      [:dance :body-parts]]
-   ["movement qualities" [:dance :movement-qualities]]])
+   ["movement qualities" [:dance :movement-qualities]]
+   ["places in the room" [:dance :places]]])
 
 (defelem options-view
   [attr _]

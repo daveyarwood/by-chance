@@ -27,27 +27,30 @@
 
 (defn random-piece
   [{:keys [dance]}]
-  (let [{:keys [body-parts movement-qualities]} dance
+  (let [{:keys [body-parts movement-qualities places]} dance
         lengths   (random-movement-lengths)
         ;; There is one movement where, instead of music, there is a special
         ;; backing track consisting of "mystery content".
         mystery-i (rand-nth (range 2 (dec (count lengths))))]
     (if (some #(< (count %) (count lengths))
-              [body-parts movement-qualities])
+              [body-parts movement-qualities places])
       [::error
        (str "Not enough options. Need " (count lengths) ".")
-       {:body-parts      (count body-parts)
-        :movement-qualities (count movement-qualities)}]
+       {:body-parts         (count body-parts)
+        :movement-qualities (count movement-qualities)
+        :places             (count places)}]
       [::success
-       (map (fn [i body-part dance-quality]
+       (map (fn [i body-part movement-quality place]
               (merge (if (= mystery-i i)
                        {:length 48 :mystery? true}
                        {:length (nth lengths i)})
-                     {:body-part     body-part
-                      :dance-quality dance-quality}))
+                     {:body-part        body-part
+                      :movement-quality movement-quality
+                      :place            place}))
             (range (count lengths))
             (shuffle body-parts)
-            (shuffle movement-qualities))])))
+            (shuffle movement-qualities)
+            (shuffle places))])))
 
 (defc piece nil)
 
@@ -74,18 +77,19 @@
 
 (defelem movement-view
   [{:keys [i movement] :as attr} _]
-  (cell-let [{:keys [length body-part dance-quality mystery?]}
+  (cell-let [{:keys [length body-part movement-quality place mystery?]}
              movement]
     (div (dissoc attr :i :movement)
          (h2 :class "inline-block mr-2"
              "SECTION " (cell= (inc i)))
          (p :class "inline-block italic"
             (cell= (str "(" (min-sec-format length) ")")))
-         (p
-          (span :class "italic"
-                (cell= (if (and body-part dance-quality)
-                         (str dance-quality ", " body-part)
-                         "(stillness)")))))))
+         (p :class "italic"
+            (cell= (if (and body-part movement-quality)
+                     (str movement-quality ", " body-part)
+                     "(stillness)")))
+         (p :class "italic"
+            place))))
 
 (defn output-view-column
   [movements]
