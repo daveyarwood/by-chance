@@ -120,7 +120,7 @@
     (when (and buffer movement)
       (when-not mystery?
         (fade-in! gain 1.0 2.0))
-      (with-timeout (if mystery? 2000 0)
+      (with-timeout (if mystery? 10000 0)
         (.start source 0 0 (+ length-ms 5000)))
       (with-timeout length-ms
         (when-not mystery?
