@@ -39,7 +39,7 @@
 (def bg-score-urls
   ;; TODO: finish writing scores and update the upper bound to be (inc
   ;; the-final-count)
-  (for [n (range 1 8)]
+  (for [n (range 1 9)]
     (str (if (< n 10) (str 0 n) n)
          ".mp3")))
 

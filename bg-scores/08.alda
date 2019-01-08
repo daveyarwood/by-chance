@@ -1,0 +1,20 @@
+(key-sig! [:e :major])
+
+(defn random-notes
+  []
+  (for [n (range 1000)]
+    [(pause (duration (ms (rand-int 500))))
+     (octave (rand-nth (range 2 6)))
+     (note (pitch (rand-nth [:e :g :b :d]))
+           (duration (ms (rand-int 2000))))]))
+
+midi-pizzicato-strings:
+  V1: (pan 15) (random-notes)
+  V2: (pan 90) r10s (random-notes)
+  V3: (pan 30) r20s (random-notes)
+  V4: (pan 75) r30s (random-notes)
+  V5: (pan 45) r40s (random-notes)
+  V6: (pan 60) r50s (random-notes)
+  V7: (pan 25) r60s (random-notes)
+  V8: (pan 80) r70s (random-notes)
+  V9: (pan 50) r80s (random-notes)
