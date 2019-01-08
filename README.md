@@ -39,7 +39,7 @@ the audience, selected at random by this application.
 
 ## License
 
-Copyright © 2018 Dave Yarwood
+Copyright © 2018-2019 Dave Yarwood
 
 Distributed under the Eclipse Public License version 2.0.
 
