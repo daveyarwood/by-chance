@@ -54,9 +54,9 @@
     (link :href "tailwind.min.css" :rel "stylesheet" :type "text/css"))
   (body :class "bg-blue text-blue-lightest container mx-auto"
     (div :toggle (cell= (not perf/performing?))
-      (div :class "m-2"
+      (div :class "m-1"
         (h1 :class "inline-block mr-4" "out of the blue"))
-      (div :class "mb-8"
+      (div :class "mb-1"
         (pill :view :options "input")
         (pill :view :output "output")
         (refresh)

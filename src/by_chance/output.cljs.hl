@@ -76,34 +76,44 @@
   [{:keys [i movement] :as attr} _]
   (cell-let [{:keys [length body-part dance-quality mystery?]}
              movement]
-    (div (dissoc attr :i :movement)
-         (h2 :class "inline-block mr-2"
-             "SECTION " (cell= (inc i)))
-         (p :class "inline-block italic"
-            (cell= (str "(" (min-sec-format length) ")")))
-         (p
-          (span :class "italic"
-                (cell= (if (and body-part dance-quality)
-                         (str dance-quality ", " body-part)
-                         "(stillness)")))))))
+    (p (-> attr
+           (dissoc :i :movement)
+           (assoc :toggle movement))
+       (span :class "font-bold"
+             "SECTION " (cell= (inc i)) ": ")
+       (span :class "italic"
+             (cell= (if (and body-part dance-quality)
+                      (str dance-quality ", " body-part)
+                      "(stillness)"))))))
 
-(defn output-view-column
-  [movements]
-  (div :class "flex flex-col w-1/3"
-    (for-tpl [[i movement] movements]
-      (movement-view {:i        i
-                      :movement movement
-                      :class    "p-2"}))))
+(defn performance-view
+  [{:keys [i movement] :as attr}]
+  (cell-let [{:keys [length body-part dance-quality]} movement]
+    (div attr
+      (h2 :class "inline-block mr-2"
+         "SECTION " (cell= (inc i)))
+      (p :class "inline-block italic"
+         (cell= (str "(" (min-sec-format length) ")")))
+      (p
+       (span :class "italic"
+             (cell= (if (and body-part dance-quality)
+                      (str dance-quality ", " body-part)
+                      "(stillness)")))))))
 
 (defelem output-view
   [attr _]
-  (div attr
-       (if-tpl success?
-         (div :class "flex"
-           (let [movements (cell= (map-indexed vector (second piece)))]
-             [(output-view-column (cell= (->> movements (take 3))))
-              (output-view-column (cell= (->> movements (drop 3) (take 3))))
-              (output-view-column (cell= (->> movements (drop 6))))]))
-         (div
-           (for-tpl [x (cell= (rest piece))]
-             (p (cell= (pr-str x))))))))
+  (let [movements (cell= (second piece))]
+    (div attr
+         (if-tpl success?
+           (div
+             (for [i (range 12)
+                   :let [movement (cell= (when (< i (count movements))
+                                           (nth movements i)))]]
+               (when-tpl movement
+                 (movement-view
+                   {:i        i
+                    :movement movement
+                    :class    "p-1"}))))
+           (div
+             (for-tpl [x (cell= (rest piece))]
+               (p (cell= (pr-str x)))))))))

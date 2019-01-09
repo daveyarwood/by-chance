@@ -45,7 +45,7 @@
   [attr _]
   (div :toggle (cell= (not finished?))
     (cell-let [[i movement] current-movement]
-      (out/movement-view
+      (out/performance-view
         (merge {:i        i
                 :movement movement
                 :class    "mx-auto text-3xl"}
