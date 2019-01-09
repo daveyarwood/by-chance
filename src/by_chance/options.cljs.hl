@@ -64,7 +64,7 @@
                         option)))))
        (div
          (a :class "italic no-underline
-                    text-blue-lightest hover:text-red-dark"
+                    text-blue-light hover:text-red-dark"
             :href  "#"
             :click reset-options!
             "clear all"))))
