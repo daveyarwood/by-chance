@@ -35,12 +35,6 @@
           (swap! current-movement-i inc)
           (reset! finished? true))))))
 
-(do-watch
-  finished?
-  (fn [_ finished?]
-    (when finished?
-      (audio/say-the-end!))))
-
 (defelem performance
   [attr _]
   (div :toggle (cell= (not finished?))
