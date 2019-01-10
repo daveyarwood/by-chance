@@ -28,12 +28,6 @@ while true; do
   filename=$(echo -e "$narration_files" | sed -n "${i}p")
   if [[ -z "$filename" ]]; then break; fi
 
-  if [[ "$filename" == *08-starting.txt ]]; then
-    play "$assets_dir/jeopardy.mp3"
-    read_script "$filename" "$@"
-    break
-  fi
-
   echo -------------------------
   echo "Waiting for a \"bang\" on: $fifo"
   echo -------------------------
