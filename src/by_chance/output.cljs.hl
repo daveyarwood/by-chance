@@ -2,8 +2,8 @@
   (:require [by-chance.options :as opts]))
 
 ;; all lengths here are in seconds
-(def TOTAL-PIECE-LENGTH (* 60 8))
-(def MIN-MOVEMENT-LENGTH 40)
+(def TOTAL-PIECE-LENGTH (* 60 7))
+(def MIN-MOVEMENT-LENGTH 30)
 (def MAX-MOVEMENT-LENGTH 90)
 
 (defn random-movement-lengths
