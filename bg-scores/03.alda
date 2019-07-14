@@ -5,13 +5,11 @@ midi-seashore:
 midi-celesta:
   (tempo 100)
   (vol 50) (pan 95)
-  r10s o4 a8 > c   d   e   g2.
-  r10s o4 g8   b > c   d   f2.
-  r10s o4 f8   a   b > c   e2.
-  r10s o4 e8   g   a   b > d2.
-  r10s o4 d8   f   g   a > c2.
-  r10s o4 c8   e   f   g   b2.
-  r10s o4 a8 > c   d   e   g2.
-  r10s o4 g8   b > c   d   f2.
-  r10s o4 f8   a   b > c   e2.
-  r10s o4 e8   g   a   b > d2.
+  [
+    r10s o4 a8 > c   d   e   g2.
+    r10s o4 g8   b > c   d   f2.
+    r10s o4 f8   a   b > c   e2.
+    r10s o4 e8   g   a   b > d2.
+    r10s o4 d8   f   g   a > c2.
+    r10s o4 c8   e   f   g   b2.
+  ]*99
