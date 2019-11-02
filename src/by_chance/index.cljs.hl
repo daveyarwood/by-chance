@@ -45,7 +45,7 @@
                             :text-grey            can-play?
                             :cursor-pointer       can-play?
                             :hover:text-grey-dark can-play?}))
-      :click #(perf/perform!)
+      :click #(when @can-play? (perf/perform!))
       "▶")))
 
 (html
