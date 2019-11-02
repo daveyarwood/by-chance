@@ -18,10 +18,10 @@
       {:class (cell= (merge (classes [:inline-block
                                       :text-xs :py-2 :px-4 :m-1 :rounded-full
                                       :focus:outline-none])
-                            {:bg-blue-light (= view current-view)
+                            {:bg-grey-dark  (= view current-view)
                              :font-bold     (= view current-view)
                              :text-white    (= view current-view)
-                             :bg-blue-dark  (not= view current-view)
+                             :bg-grey-light (not= view current-view)
                              :italic        (not= view current-view)
                              :text-grey     (not= view current-view)}))
        :click #(reset! current-view view)}
@@ -31,7 +31,7 @@
 (defelem refresh
   [attr _]
   (button
-    :class "inline-block text-blue-lighter hover:text-blue-lightest mr-2"
+    :class "inline-block text-grey-light hover:text-grey-dark mr-2"
     :click #(swap! out/refresh-count inc)
     "⟳"))
 
@@ -40,11 +40,11 @@
   (let [can-play? (cell= (and out/success? audio/ready?))]
     (button
       :class (cell= (merge (classes [:inline-block :mr-2])
-                           {:text-blue-dark           (not can-play?)
-                            :cursor-not-allowed       (not can-play?)
-                            :text-blue-lighter        can-play?
-                            :cursor-pointer           can-play?
-                            :hover:text-blue-lightest can-play?}))
+                           {:text-grey-lighter    (not can-play?)
+                            :cursor-not-allowed   (not can-play?)
+                            :text-grey-light      can-play?
+                            :cursor-pointer       can-play?
+                            :hover:text-grey-dark can-play?}))
       :click #(perf/perform!)
       "▶")))
 
@@ -52,7 +52,7 @@
   (head
     (title "by chance :: renay aumiller + dave yarwood")
     (link :href "tailwind.min.css" :rel "stylesheet" :type "text/css"))
-  (body :class "bg-blue text-blue-lightest container mx-auto"
+  (body :class "bg-beige text-grey-darkest container mx-auto"
     (div :toggle (cell= (not perf/performing?))
       (div :class "m-1"
         (h1 :class "inline-block mr-4" "by chance"))

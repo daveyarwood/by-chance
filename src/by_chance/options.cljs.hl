@@ -42,7 +42,7 @@
                      :class "mb-2 px-2 py-2 rounded-full shadow-md
                              hover:shadow-outline focus:outline-none
                              focus:shadow-outline inline-block
-                             bg-blue-light text-blue-lightest"
+                             bg-grey-light text-grey-darker"
                      :keyup #(when (= "Enter" (.-key %))
                                (let [target (.-target %)]
                                  (when-not (str/blank? (.-value target))
@@ -64,7 +64,7 @@
                         option)))))
        (div
          (a :class "italic no-underline
-                    text-blue-light hover:text-red-dark"
+                    text-grey-lighter hover:text-red-dark"
             :href  "#"
             :click reset-options!
             "clear all"))))
