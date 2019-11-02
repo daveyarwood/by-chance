@@ -62,18 +62,27 @@
 (defn fade-in!
   [gain target-volume fade-duration]
   (let [current-time (.-currentTime audio-ctx)]
-    (-> (.-gain gain)
-        (.setValueAtTime 0.001 current-time))
-    (-> (.-gain gain)
-        (.exponentialRampToValueAtTime target-volume
-                                       (+ current-time fade-duration)))))
+    (doto (.-gain gain)
+      (.setValueAtTime 0.001 current-time)
+      (.exponentialRampToValueAtTime target-volume
+                                     (+ current-time fade-duration)))))
 
 (defn fade-out!
   [gain fade-duration]
-  (-> (.-gain gain)
+  (let [current-time (.-currentTime audio-ctx)
+        current-gain (.-value (.-gain gain))]
+    (doto (.-gain gain)
+      ;; Bizarrely, the exponentialRampToValueAtTime below will begin the fade
+      ;; out from a much lower volume (close to 0, effectively sounding like an
+      ;; abrupt cut-off instead of a fade-out), unless we explicitly set the
+      ;; gain to the current value (which it should already be...).
+      ;;
+      ;; I think this might be a browser bug that was introduced since the last
+      ;; time we performed this piece, almost a year ago, because this wasn't
+      ;; necessary before.
+      (.setValueAtTime current-gain current-time)
       (.exponentialRampToValueAtTime 0.01
-                                     (+ (.-currentTime audio-ctx)
-                                        fade-duration))))
+                                     (+ current-time fade-duration)))))
 
 (defn static!
   [movements]
