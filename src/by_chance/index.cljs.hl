@@ -31,7 +31,7 @@
 (defelem refresh
   [attr _]
   (button
-    :class "inline-block text-grey-light hover:text-grey-dark mr-2"
+    :class "inline-block text-grey hover:text-grey-dark mr-2"
     :click #(swap! out/refresh-count inc)
     "⟳"))
 
@@ -42,7 +42,7 @@
       :class (cell= (merge (classes [:inline-block :mr-2])
                            {:text-grey-lighter    (not can-play?)
                             :cursor-not-allowed   (not can-play?)
-                            :text-grey-light      can-play?
+                            :text-grey            can-play?
                             :cursor-pointer       can-play?
                             :hover:text-grey-dark can-play?}))
       :click #(perf/perform!)
