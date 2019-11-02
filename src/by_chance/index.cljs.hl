@@ -50,12 +50,12 @@
 
 (html
   (head
-    (title "out of the blue :: renay aumiller + dave yarwood")
+    (title "by chance :: renay aumiller + dave yarwood")
     (link :href "tailwind.min.css" :rel "stylesheet" :type "text/css"))
   (body :class "bg-blue text-blue-lightest container mx-auto"
     (div :toggle (cell= (not perf/performing?))
       (div :class "m-1"
-        (h1 :class "inline-block mr-4" "out of the blue"))
+        (h1 :class "inline-block mr-4" "by chance"))
       (div :class "mb-1"
         (pill :view :options "input")
         (pill :view :output "output")
