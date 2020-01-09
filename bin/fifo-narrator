@@ -2,19 +2,8 @@
 
 set -e
 
-function read_script() {
-  filename="$1"
-  shift
-  gs_args="$@" # optional, e.g. "-l en-au"
-
-  cat $filename | while read line; do
-    google_speech $gs_args "$line"
-  done
-}
-
 script_dir=$(dirname $0)
-narration_dir="$script_dir/../narration"
-assets_dir="$script_dir/../assets"
+narration_dir="$script_dir/../assets/narration"
 fifo="$script_dir/../narration.fifo"
 
 narration_files=$(find "$narration_dir" | tail -n+2 | sort)
@@ -33,10 +22,8 @@ while true; do
   echo -------------------------
   cat $fifo >/dev/null
 
-  echo --------------------------------------------------
-  echo "Reading script: $filename"
-  echo --------------------------------------------------
-  read_script "$filename" "$@"
+  play "$filename"
+  echo
   ((++i))
 done
 
