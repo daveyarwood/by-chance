@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+gs_args="$@" # optional, e.g. "-l en-au"
+
+script_dir=$(dirname $0)
+narration_dir="$script_dir/../narration"
+narration_mp3s_dir="$script_dir/../assets/narration"
+workdir=$(mktemp -d)
+
+mkdir -p "$narration_mp3s_dir"
+
+# Avoid deleting /*
+if [[ -z "$narration_mp3s_dir" ]]; then
+  echo "That was a close one!"
+  exit 1
+fi
+
+rm $narration_mp3s_dir/*
+
+function export_script() {
+  script_filename="$1"
+
+  section=$(basename "$script_filename" | sed 's/\.txt//')
+  parts_dir="$workdir/$section"
+  mp3_filename="$workdir/$section.mp3"
+
+  mkdir -p "$parts_dir"
+
+  pause_lines=0
+  seq_number=1
+
+  function part_filename() {
+    extension="$1"
+    printf "$parts_dir/%03d.$extension" $seq_number
+  }
+
+  cat "$script_filename" | while read line; do
+    if [[ -z "$line" ]]; then
+      ((++pause_lines))
+    else
+      echo "$line"
+      if [[ $pause_lines -gt 0 ]]; then
+        part_filename=$(part_filename "wav")
+
+        # According to my rough measurements, the way we used to do this (see
+        # `fifo-narrator`) resulted in an average of 0.322 seconds per empty
+        # line.
+        duration=$(echo "0.322 * $pause_lines" | bc)
+        echo "              (pause: $duration seconds)"
+
+        # Generate a silent wav file.
+        # Source: https://stackoverflow.com/a/55590271/2338327
+        sox -n -r 24k -c 1 "$part_filename" trim 0.0 "$duration"
+        ((++seq_number))
+      fi
+      pause_lines=0
+
+      part_filename=$(part_filename "mp3")
+      google_speech $gs_args -o "$part_filename" "$line"
+      ((++seq_number))
+    fi
+  done
+
+  sox $(ls $parts_dir/*) "$mp3_filename"
+  cp "$mp3_filename" "$narration_mp3s_dir/"
+}
+
+find $(realpath "$narration_dir") | sort | tail -n+2 | while read filename; do
+  echo ----------------------------------------
+  echo "Exporting $filename..."
+  echo ----------------------------------------
+  echo
+
+  export_script "$filename"
+  echo
+done
+
+echo ----------------------------------------
+echo "Done!"
+echo ----------------------------------------
+echo
+
+ls -al "$narration_mp3s_dir"
