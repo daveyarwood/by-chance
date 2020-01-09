@@ -43,7 +43,7 @@ function export_script() {
         part_filename=$(part_filename "wav")
 
         # According to my rough measurements, the way we used to do this (see
-        # `fifo-narrator`) resulted in an average of 0.322 seconds per empty
+        # `fg-narrator`) resulted in an average of 0.322 seconds per empty
         # line.
         duration=$(echo "0.322 * $pause_lines" | bc)
         echo "              (pause: $duration seconds)"
