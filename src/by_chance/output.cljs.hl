@@ -2,33 +2,60 @@
   (:require [by-chance.options :as opts]))
 
 ;; all lengths here are in seconds
-(def TOTAL-PIECE-LENGTH (* 60 7))
+(def MIN-TOTAL-PIECE-LENGTH (* 60 5))
+(def MAX-TOTAL-PIECE-LENGTH (* 60 6))
 (def MIN-MOVEMENT-LENGTH 30)
 (def MAX-MOVEMENT-LENGTH 90)
 
-(defn random-movement-lengths
-  []
+(def MAX-NUMBER-OF-MOVEMENTS 6)
+
+(defn- rand-int-in-range
+  [minimum maximum]
+  (+ minimum (rand-int (- maximum minimum))))
+
+(defn random-movement-lengths*
+  [total-piece-length]
   (loop [lengths []]
     (let [piece-length (apply + lengths)
-          remaining    (- TOTAL-PIECE-LENGTH piece-length)
-          length       (-> MIN-MOVEMENT-LENGTH
-                           (+ (rand-int (- MAX-MOVEMENT-LENGTH
-                                           MIN-MOVEMENT-LENGTH)))
-                           (min (- TOTAL-PIECE-LENGTH piece-length)))]
+          remaining    (- total-piece-length piece-length)
+          length       (-> (rand-int-in-range
+                             MIN-MOVEMENT-LENGTH
+                             MAX-MOVEMENT-LENGTH)
+                           (min (- total-piece-length piece-length)))]
       (cond
-        (< (+ piece-length length) TOTAL-PIECE-LENGTH)
+        (= MAX-NUMBER-OF-MOVEMENTS (count lengths))
+        (if (>= piece-length MIN-TOTAL-PIECE-LENGTH)
+          (do
+            (prn 1)
+            lengths)
+          :fail)
+
+        (< (+ piece-length length) total-piece-length)
         (recur (conj lengths length))
 
         (>= remaining MIN-MOVEMENT-LENGTH)
-        (recur (conj lengths remaining))
+        (do
+          (prn 3)
+          (conj lengths remaining))
 
         :else
-        lengths))))
+        (do
+          (prn 4)
+          lengths)))))
+
+(defn random-movement-lengths
+  [total-piece-length]
+  (->> (repeatedly #(random-movement-lengths* total-piece-length))
+       (filter #(not= :fail %))
+       first))
 
 (defn random-piece
   [{:keys [dance]}]
   (let [{:keys [body-parts movement-qualities]} dance
-        lengths   (random-movement-lengths)
+        lengths   (random-movement-lengths
+                    (rand-int-in-range
+                      MIN-TOTAL-PIECE-LENGTH
+                      MAX-TOTAL-PIECE-LENGTH))
         ;; There is one movement where, instead of music, there is a special
         ;; backing track consisting of "mystery content".
         mystery-i (rand-nth (range 2 (dec (count lengths))))]
@@ -50,6 +77,17 @@
             (shuffle movement-qualities))])))
 
 (defc piece nil)
+
+(defn piece-info
+  [[outcome movements]]
+  (when (= ::success outcome)
+    {:length    (-> (reduce #(+ %1 (:length %2)) 0 movements)
+                    (/ 60.0))
+     :movements (count movements)}))
+
+
+(cell= (prn :piece piece
+            :piece.info (piece-info piece)))
 
 (defc= success? (= ::success (first piece)))
 
