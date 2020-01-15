@@ -45,7 +45,7 @@ function export_script() {
         # According to my rough measurements, the way we used to do this (see
         # `fg-narrator`) resulted in an average of 0.322 seconds per empty
         # line.
-        duration=$(echo "0.322 * $pause_lines" | bc)
+        duration=$(echo "0.272 * $pause_lines" | bc)
         echo "              (pause: $duration seconds)"
 
         # Generate a silent wav file.
