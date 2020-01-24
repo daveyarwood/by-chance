@@ -25,23 +25,17 @@
       (cond
         (= MAX-NUMBER-OF-MOVEMENTS (count lengths))
         (if (>= piece-length MIN-TOTAL-PIECE-LENGTH)
-          (do
-            (prn 1)
-            lengths)
+          lengths
           :fail)
 
         (< (+ piece-length length) total-piece-length)
         (recur (conj lengths length))
 
         (>= remaining MIN-MOVEMENT-LENGTH)
-        (do
-          (prn 3)
-          (conj lengths remaining))
+        (conj lengths remaining)
 
         :else
-        (do
-          (prn 4)
-          lengths)))))
+        lengths))))
 
 (defn random-movement-lengths
   [total-piece-length]
@@ -86,8 +80,8 @@
      :movements (count movements)}))
 
 
-(cell= (prn :piece piece
-            :piece.info (piece-info piece)))
+;; (cell= (prn :piece piece
+;;             :piece.info (piece-info piece)))
 
 (defc= success? (= ::success (first piece)))
 

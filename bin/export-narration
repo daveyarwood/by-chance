@@ -17,8 +17,17 @@ fi
 
 rm $narration_mp3s_dir/*
 
+internal_monologue_script="$script_dir/../bg-scores/internal-monologue.txt"
+internal_monologue_mp3_dir="$script_dir/../assets"
+
 function export_script() {
   script_filename="$1"
+  output_dir="$2"
+
+  echo ----------------------------------------
+  echo "Exporting $script_filename..."
+  echo ----------------------------------------
+  echo
 
   section=$(basename "$script_filename" | sed 's/\.txt//')
   parts_dir="$workdir/$section"
@@ -62,18 +71,15 @@ function export_script() {
   done
 
   sox $(ls $parts_dir/*) "$mp3_filename"
-  cp "$mp3_filename" "$narration_mp3s_dir/"
+  cp "$mp3_filename" "$output_dir/"
 }
 
 find $(realpath "$narration_dir") | sort | tail -n+2 | while read filename; do
-  echo ----------------------------------------
-  echo "Exporting $filename..."
-  echo ----------------------------------------
-  echo
-
-  export_script "$filename"
+  export_script "$filename" "$narration_mp3s_dir"
   echo
 done
+
+export_script "$internal_monologue_script" "$internal_monologue_mp3_dir"
 
 echo ----------------------------------------
 echo "Done!"
