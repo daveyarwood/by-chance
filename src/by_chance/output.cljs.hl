@@ -62,7 +62,7 @@
       [::success
        (map (fn [i body-part dance-quality]
               (merge (if (= mystery-i i)
-                       {:length 58 :mystery? true}
+                       {:length 66 :mystery? true}
                        {:length (nth lengths i)})
                      {:body-part     body-part
                       :dance-quality dance-quality}))
